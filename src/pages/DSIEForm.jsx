@@ -1,10 +1,10 @@
 import './App.css';
 
 function Form() {
-    
+
     return (
         <>
-        <div>Dashboard</div>
+        <div>Form</div>
         
         
         </>
