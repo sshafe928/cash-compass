@@ -4,7 +4,7 @@ const app = express()
 const cors = require('cors')
 const morgan = require('morgan')
 require("dotenv").config();
-const transactionRoute = require("./routes/transavtion");
+const EntriesRoute = require("./routes/Entries");
 const connectDB = require("./db/connect");
 const port = 5000
 
@@ -25,7 +25,7 @@ app.get('/',(req,res)=>{
 })
 
 //Routes
-app.use("/transaction", transactionRoute);
+app.use("/Entries", EntriesRoute);
 
 
 const initServer = async() => {
