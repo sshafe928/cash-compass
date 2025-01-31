@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 
-const TransactionSchema = new mongoose.Schema({
+const DebtSchema = new mongoose.Schema({
     category:{
         type: String,
         required: true,
-        enum: ['Income', 'Expense'],
-        default: 'Income'  
+        default: 'Debt'  
     },
     amount: {
         type: Number,
+        trim: true,
         required: true
     },
     where:{
@@ -35,4 +35,4 @@ const TransactionSchema = new mongoose.Schema({
     }
 }, {collection: 'transactions'})
 
-module.exports = mongoose.model('Transaction', TransactionSchema);
+module.exports = mongoose.model('Debt', DebtSchema);
