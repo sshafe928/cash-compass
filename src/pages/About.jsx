@@ -7,6 +7,7 @@ import about5 from '../assets/images/aboutImage5.avif'
 import image17 from '../assets/images/Screenshot__17_-removebg-preview.png'
 import image18 from '../assets/images/Screenshot__18_-removebg-preview.png'
 import image19 from '../assets/images/Screenshot__19_-removebg-preview.png'
+import compassLogo from '../assets/images/compassLogo.png'
 
 const About = () => {
     const images = useMemo(() => [about1, about2, about3, about4], []);
@@ -59,9 +60,12 @@ return (
 
         {/* HEADER WITH GALLERY */}
         <div className="bg-dark-blue w-full flex flex-col h-[500px]">
-            <div className="flex flex-col text-center gap-8 mt-10">
-                <h1 className="text-[50px] text-white font-semibold max-w-fit mx-auto relative inline-block after:block after:w-0 after:h-1 after:bg-white after:transition-all after:duration-500 hover:after:w-full relative inline-block after:block after:w-0 after:h-1 after:bg-white after:transition-all after:duration-500 hover:after:w-full">Cash Compass</h1>
-                <p className="text-lg text-white max-w-[650px] mx-auto px-6">Take control of your finances with <span className="font-bold">Cash Compass</span>. 
+            <div className="flex flex-col text-center gap-6 mt-10">
+                <div className="flex flex-col md:flex-row items-center justify-center">
+                    <img className="w-[200px] md:w-[150px]" src={compassLogo} alt="logo" />
+                    <h1 className="text-[50px] text-white font-semibold  relative inline-block after:block after:w-0 after:h-1 after:bg-white after:transition-all after:duration-500 hover:after:w-full relative inline-block after:block after:w-0 after:h-1 after:bg-white after:transition-all after:duration-500 hover:after:w-full">Cash Compass</h1>
+                </div>
+                <p className="text-lg text-white max-w-[650px] mx-auto px-6 bg-dark-blue">Take control of your finances with <span className="font-bold">Cash Compass</span>. 
                 Track your spending, set budgets, and gain insights into your financial health—all in one place. 
                 Start your journey towards smarter money management today!</p>
             </div>
@@ -75,7 +79,7 @@ return (
         </div>
 
         {/* WELCOME AND INTRO */}
-        <div className="flex flex-col gap-8 justify-center mx-auto w-[90%] sm:w-[80%] mt-32 sm:mt-18 md:mt-14">
+        <div className="flex flex-col gap-8 justify-center mx-auto w-[90%] sm:w-[80%] mt-80 sm:mt-72 md:mt-24">
             <div className="flex flex-col gap-4 text-center md:text-start">
                 <p className="text-3xl text-dark-blue font-semibold">Welcome To Your Financial Tracker!</p>
                 <p className="text-xl text-gray-900">Get started with us and make an account or login.</p>
