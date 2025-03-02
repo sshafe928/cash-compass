@@ -1,22 +1,31 @@
 const mongoose = require('mongoose');
 
-const DebtSchema = new mongoose.Schema({
+const BudgetSchema = new mongoose.Schema({
     category:{
         type: String,
         required: true,
-        default: 'Debt'  
+        default: 'Budget'  
+    },
+    title:{
+        type: String,
+        required: true,
+        trim: true,
+        default: ''
+    },
+    icon:{
+        type : Object,
     },
     amount: {
         type: Number,
         trim: true,
         required: true
     },
-    where:{
-        type: String,
-        required: true,
+    spent: {
+        type: Number,
         trim: true,
-        default: ''
+        required: true
     },
+    
     user: {
         type: String,
         required: true
@@ -26,13 +35,12 @@ const DebtSchema = new mongoose.Schema({
         default: Date.now,
         required: true
     },
-
-    notes:{
+    color:{
         type: String,
-        trim: true,
-        required: false,
-        default: ''
-    }
+        required: true,
+        default: '#FF0000'
+    },
+
 }, {collection: 'transactions'})
 
-module.exports = mongoose.model('Debt', DebtSchema);
+module.exports = mongoose.model('Budget', BudgetSchema);
