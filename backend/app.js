@@ -5,6 +5,7 @@ const cors = require('cors')
 const morgan = require('morgan')
 require("dotenv").config();
 const EntriesRoute = require("./routes/Entries");
+const UserRoute = require("./routes/Users.js");
 const connectDB = require("./db/connect");
 const port = 5000
 
@@ -17,15 +18,16 @@ app.use(cors())
 //Body Parser
 app.use(express.urlencoded({extended : false}));
 
-// CheckPath
-app.get('/',(req,res)=>{
-    res.send('Server is Working')
-    //Use this to check to make sure the server is working by going to http://localhost/5000
-    //If you see App is working that means the backend server is working
-})
 
 //Routes
 app.use("/Entries", EntriesRoute);
+app.use('/', EntriesRoute);
+app.use('/user', UserRoute);
+
+
+// Local Middleware
+const notFound = require('./middleware/not-found');
+app.use(notFound);
 
 
 const initServer = async() => {

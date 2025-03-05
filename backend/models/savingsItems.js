@@ -4,7 +4,7 @@ const GoalSchema = new mongoose.Schema({
     category:{
         type: String,
         required: true,
-        default: 'Saving'  
+        default: 'Goals'  
     },
     
     title:{

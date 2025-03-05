@@ -14,9 +14,13 @@ const isAuth = require('../middleware/isAuth');
 
 
 
-router.route('/edit/:id')
+router.route('/Dashboard').get(isAuth, getDashboard)
 
-router.route('/delete/:id').post(isAuth, deleteTrans);
+router.route('/Budget')
+
+router.route('/Forms')
+
+router.route('/History')
 
 
 
