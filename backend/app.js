@@ -20,9 +20,12 @@ app.use(express.urlencoded({extended : false}));
 
 
 //Routes
-app.use("/Entries", EntriesRoute);
-app.use('/', EntriesRoute);
-app.use('/user', UserRoute);
+app.use('/api/dashboard', require('./routes/photoRoutes'));
+app.use('/api/budget', require('./routes/eventRoutes'));
+app.use('/api/history', require('./routes/newsRoutes'));
+app.use('/api/forms', require('./routes/eagleRoutes'));
+app.use('/api/login', require('./routes/eagleRoutes'));
+app.use('/api/signup', require('./routes/eagleRoutes'));
 
 
 // Local Middleware

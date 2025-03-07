@@ -1,18 +1,13 @@
-const User = require('../models/User');
 const express = require('express');
 const router = express.Router();
-const { findUser, registerUser } = require('../controllers/user_controller');
+const { registerUser, loginUser } = require('../controllers/user_controller');
+const asyncWrapper = require('../middleware/async');
 
-// router.route('/').get((req, res) => {
-//         res.render('login'); 
-// }).post(findUser)
-
-// router.route('/register').get(async (req, res) => {
-//     res.render('signup');
-// })
-// .post(registerUser);
+router.post('/register', asyncWrapper(registerUser));
+router.post('/login', asyncWrapper(loginUser));
 
 
-
+// router.post('/delete-user/:id', authMiddleware, asyncWrapper(deleteUser));
 
 module.exports = router;
+
