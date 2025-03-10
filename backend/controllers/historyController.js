@@ -1,8 +1,10 @@
 const asyncWrapper = require('../middleware/async');
+const { getDB } = require('./connect'); 
 
 const getHistory = async (req, res) => {
     try {
         
+        const db = getDB();
         const data = await db.transactions.find()
         
         

@@ -1,8 +1,11 @@
 const asyncWrapper = require('../middleware/async');
+const { getDB } = require('./connect'); 
+
 
 const getBudget = async (req, res) => {
     try {
         
+        const db = getDB();
         const savingItems = await db.transactions.find({
             "category": { $in: ["Goals"] }
         });
