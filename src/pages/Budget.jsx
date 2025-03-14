@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import compassLogo from '../assets/images/compassLogo.png';
+import { IoReturnDownBack } from "react-icons/io5";
 // edit icon import
 import { FiEdit3 } from "react-icons/fi";
 // budget and debt section icons imports
@@ -9,6 +10,7 @@ import Speedometer from "../components/Speedometer";
 import { TbTargetArrow } from "react-icons/tb";
 
 const Budget = () => {
+const [formActive, setFormActive] = useState(false)
 const [isVisible, setIsVisible] = useState(false);
 const [threshold, setThreshold] = useState(0.4);
 const speedometerRef = useRef(null);
@@ -233,7 +235,7 @@ return (
                 <div className="w-full max-w-7xl mx-auto px-4">
                     <div className="flex justify-between items-center">
                         <h1 className="text-gray-500 text-xl my-4">Savings Goals</h1>
-                        <button className="flex items-center border-2 gap-1 border-dark-blue text-dark-blue rounded-lg w-[100px] h-[40px] justify-center hover:border-blue-300 hover:text-blue-300">
+                        <button onClick={() => setFormActive(true)} className="flex items-center border-2 gap-1 border-dark-blue text-dark-blue rounded-lg w-[100px] h-[40px] justify-center hover:border-blue-300 hover:text-blue-300">
                             <h1 className="text-sm font-bold">Add Goal</h1>
                             <TbTargetArrow className="w-5 h-5" />
                         </button>
@@ -280,6 +282,47 @@ return (
                         ))}
                     </div>
                 </div>
+
+                {/* GOAL FORM */}
+                {formActive && (
+                <>
+                    {/* Dark overlay */}
+                    <div className="fixed inset-0 bg-black bg-opacity-60 z-40"></div>
+
+                    {/* The form */}
+                    <form className="fixed z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[800px] rounded-2xl bg-white border border-[#284b74] p-4 mt-8">
+                    <button className="text-gray flex items-center hover:text-dark-blue" onClick={() => setFormActive(false)}>
+                        <IoReturnDownBack className="w-6 h-6" />
+                    </button>
+                    <div className="text-center flex flex-col w-5/6 mx-auto mb-4">
+                        <h1 className="text-dark-blue text-xl md:text-3xl mt-6">Add Goal</h1>
+
+                        {/* Goal Title */}
+                        <div className="flex flex-col mt-4">
+                        <label className="text-left text-md text-gray-700 font-medium" htmlFor="savings-category">Goal Title:</label>
+                        <input type="text" className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" placeholder="Trip to Dubai" />
+                        </div>
+
+                        {/* Date and Amount Inputs */}
+                        <div className="flex flex-col mt-4">
+                        <label className="text-left text-md text-gray-700 font-medium" htmlFor="savings-date">Achieve By:</label>
+                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="date" required />
+                        </div>
+
+                        <div className="flex flex-col mt-4">
+                        <label className="text-left text-md text-gray-700 font-medium" htmlFor="savings-amount">Amount:</label>
+                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="number" placeholder="$" required />
+                        </div>
+
+                        {/* Submit Button */}
+                        <button className="my-10 p-2 rounded-md text-white w-full bg-dark-blue mx-auto hover:bg-hl-blue hover:text-dark-blue">
+                        Submit Transaction
+                        </button>
+                    </div>
+                    </form>
+                </>
+                )}
+
                 {/* debt section */}
                 <div className="w-full max-w-7xl mx-auto px-4">
                     <h1 className="text-gray-500 text-xl my-4">Debt Tracking</h1>
