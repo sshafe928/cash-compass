@@ -8,9 +8,14 @@ import { FaHome, FaEllipsisH, FaShoppingBasket, FaCar, FaHeartbeat, FaFilm, FaGi
 // speedometer component and target imports
 import Speedometer from "../components/Speedometer";
 import { TbTargetArrow } from "react-icons/tb";
+import { set } from "mongoose";
 
 const Budget = () => {
-const [formActive, setFormActive] = useState(false)
+const [formActive, setFormActive] = useState(false);
+const [budgetFormActive, setBudgetFormActive] = useState(false);
+const [selectedBudgetCategory, setSelectedBudgetCategory] = useState(null);
+const [selectedGoalCategory, setselectedGoalCategory] = useState(null);
+const [goalFormActive, setGoalFormActive] = useState(false);
 const [isVisible, setIsVisible] = useState(false);
 const [threshold, setThreshold] = useState(0.4);
 const speedometerRef = useRef(null);
@@ -204,7 +209,7 @@ return (
                                                 <p className="font-bold text-base sm:text-lg">${new Intl.NumberFormat('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(item.amount)}</p>
                                             </div>
                                         </div>
-                                        <button className="flex-shrink-0 flex items-center gap-2 border-2 border-dark-blue rounded-lg p-2 text-dark-blue hover:text-blue-300 hover:border-blue-300 text-sm sm:text-base transition-colors duration-200">
+                                        <button onClick={() => (setBudgetFormActive(true), setSelectedBudgetCategory(item))} className="flex-shrink-0 flex items-center gap-2 border-2 border-dark-blue rounded-lg p-2 text-dark-blue hover:text-blue-300 hover:border-blue-300 text-sm sm:text-base transition-colors duration-200">
                                             <span className="hidden custom-large:inline">Adjust</span>
                                             <FiEdit3 className="w-4 h-4" />
                                         </button>
@@ -231,6 +236,40 @@ return (
                         })}
                     </div>
                 </div>
+
+                {/* ADJUSTING BUDGET FORM */}
+                {budgetFormActive && selectedBudgetCategory && (
+                <>
+                    {/* Dark overlay */}
+                    <div className="fixed inset-0 bg-black bg-opacity-60 z-40"></div>
+
+                    {/* The form */}
+                    <form className="fixed z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[800px] rounded-2xl bg-white border border-[#284b74] p-4 mt-8">
+                        <button className="text-gray flex items-center hover:text-dark-blue" onClick={() => setBudgetFormActive(false)}>
+                            <IoReturnDownBack className="w-6 h-6" />
+                        </button>
+                        <div className="text-center flex flex-col w-5/6 mx-auto mb-4">
+                            <h1 className="text-dark-blue text-xl md:text-3xl mt-6">Adjust Monthly {selectedBudgetCategory.title} Budget</h1>
+
+                            {/* Goal Title */}
+                            <div className="flex flex-col mt-4">
+                                <label className="text-left text-md text-gray-700 font-medium" htmlFor="">New Budget Amount:</label>
+                                <input type="text" className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" placeholder={selectedBudgetCategory.amount} />
+                            </div>
+                            <div className="flex flex-col mt-4 space-y-4 text-start">
+                                <h1 className="font-semibold text-dark-blue">Currently spent ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(selectedBudgetCategory.spent)} of your ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(selectedBudgetCategory.amount)} monthly budget.</h1>
+                                <h1 className="font-semibold text-dark-blue">Current Date: {new Date().toLocaleDateString('en-US')}</h1>
+                            </div>
+
+                            {/* Submit Button */}
+                            <button className="my-10 p-2 rounded-md text-white w-full bg-dark-blue mx-auto hover:bg-hl-blue hover:text-dark-blue">
+                                Submit Transaction
+                            </button>
+                        </div>
+                    </form>
+                </>
+                )}
+
                 {/* savings section */}
                 <div className="w-full max-w-7xl mx-auto px-4">
                     <div className="flex justify-between items-center">
@@ -273,7 +312,7 @@ return (
                                 <button className="text-red-600 hover:text-red-900 hover:border-b-2 hover:border-red-900 text-md transition-colors duration-200">
                                     remove
                                 </button>
-                                <button className="flex-shrink-0 flex items-center gap-2 border-2 border-dark-blue rounded-lg p-2 text-dark-blue hover:text-blue-300 hover:border-blue-300 text-sm sm:text-base transition-colors duration-200">
+                                <button onClick={() => (setGoalFormActive(true), setselectedGoalCategory(item))} className="flex-shrink-0 flex items-center gap-2 border-2 border-dark-blue rounded-lg p-2 text-dark-blue hover:text-blue-300 hover:border-blue-300 text-sm sm:text-base transition-colors duration-200">
                                     <span>Adjust</span>
                                     <FiEdit3 className="w-4 h-4" />
                                 </button>
@@ -282,6 +321,44 @@ return (
                         ))}
                     </div>
                 </div>
+
+                {/* ADJUSTING GOAL AMOUNT FORM */}
+                {goalFormActive && selectedGoalCategory && (
+                <>
+                    {/* Dark overlay */}
+                    <div className="fixed inset-0 bg-black bg-opacity-60 z-40"></div>
+
+                    {/* The form */}
+                    <form className="fixed z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[800px] rounded-2xl bg-white border border-[#284b74] p-4 mt-8">
+                        <button className="text-gray flex items-center hover:text-dark-blue" onClick={() => setGoalFormActive(false)}>
+                            <IoReturnDownBack className="w-6 h-6" />
+                        </button>
+                        <div className="text-center flex flex-col w-5/6 mx-auto mb-4">
+                            <h1 className="text-dark-blue text-xl md:text-3xl mt-6">Adjust {selectedGoalCategory.title} Target Goal:</h1>
+
+                            {/* Goal Title */}
+                            <div className="flex flex-col mt-4">
+                                <label className="text-left text-md text-gray-700 font-medium" htmlFor="">New Target Amount:</label>
+                                <input type="text" className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" placeholder={selectedGoalCategory.goalAmount} />
+                            </div>
+                            {/* Goal Date */}
+                            <div className="flex flex-col mt-4">
+                                <label className="text-left text-md text-gray-700 font-medium" htmlFor="">New Target Date:</label>
+                                <input type="text" className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" placeholder={selectedGoalCategory.goalDate} />
+                            </div>
+                            <div className="flex flex-col mt-4 space-y-4 text-start">
+                                <h1 className="font-semibold text-dark-blue">Currently saved ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(selectedGoalCategory.currentAmount)} of your ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(selectedGoalCategory.goalAmount)} target goal.</h1>
+                                <h1 className="font-semibold text-dark-blue">Current Date: {new Date().toLocaleDateString('en-US')}</h1>
+                            </div>
+
+                            {/* Submit Button */}
+                            <button className="my-10 p-2 rounded-md text-white w-full bg-dark-blue mx-auto hover:bg-hl-blue hover:text-dark-blue">
+                                Submit Transaction
+                            </button>
+                        </div>
+                    </form>
+                </>
+                )}
 
                 {/* GOAL FORM */}
                 {formActive && (
@@ -299,18 +376,18 @@ return (
 
                         {/* Goal Title */}
                         <div className="flex flex-col mt-4">
-                        <label className="text-left text-md text-gray-700 font-medium" htmlFor="savings-category">Goal Title:</label>
+                        <label className="text-left text-md text-gray-700 font-medium" htmlFor="">Goal Title:</label>
                         <input type="text" className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" placeholder="Trip to Dubai" />
                         </div>
 
                         {/* Date and Amount Inputs */}
                         <div className="flex flex-col mt-4">
-                        <label className="text-left text-md text-gray-700 font-medium" htmlFor="savings-date">Achieve By:</label>
+                        <label className="text-left text-md text-gray-700 font-medium" htmlFor="">Achieve By:</label>
                         <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="date" required />
                         </div>
 
                         <div className="flex flex-col mt-4">
-                        <label className="text-left text-md text-gray-700 font-medium" htmlFor="savings-amount">Amount:</label>
+                        <label className="text-left text-md text-gray-700 font-medium" htmlFor="">Amount:</label>
                         <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="number" placeholder="$" required />
                         </div>
 
