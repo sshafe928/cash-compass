@@ -1,8 +1,8 @@
 const asyncWrapper = require('../middleware/async');
 const { getDB } = require('./connect');
-const { ObjectId } = require('mongodb'); // Make sure to import this
+const { ObjectId } = require('mongodb'); 
 
-// Get budget items (your existing function)
+// Get budget items 
 const getBudget = async (req, res) => {
     try {
         const db = getDB();
