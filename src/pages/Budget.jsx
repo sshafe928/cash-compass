@@ -9,6 +9,7 @@ import { FaHome, FaEllipsisH, FaShoppingBasket, FaCar, FaHeartbeat, FaFilm, FaGi
 import Speedometer from "../components/Speedometer";
 import { TbTargetArrow } from "react-icons/tb";
 import { set } from "mongoose";
+import axios from 'axios';
 
 const Budget = () => {
 const [formActive, setFormActive] = useState(false);
@@ -18,6 +19,7 @@ const [selectedGoalCategory, setselectedGoalCategory] = useState(null);
 const [goalFormActive, setGoalFormActive] = useState(false);
 const [isVisible, setIsVisible] = useState(false);
 const [threshold, setThreshold] = useState(0.4);
+const [BudgetItems, setBudgetItems] = useState([])
 const speedometerRef = useRef(null);
 
 useEffect(() => {
@@ -58,6 +60,62 @@ useEffect(() => {
 const [isOpen, setIsOpen] = useState(false);
 
 const toggleSidebar = () => setIsOpen(!isOpen);
+
+const updateBudgetItem = async (id, newAmount) => {
+    try {
+    const response = await axios.post('/routes/budgetRoutes/update', {
+        id,
+        newAmount
+    });
+    return response.data;
+    } catch (error) {
+    console.error('Error updating budget:', error);
+    throw error;
+    }
+};
+
+// Then modify your form submission handler
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+    // Get the new amount from form
+    const formData = new FormData(e.target);
+    const newAmount = formData.get('newAmount');
+    
+    // Call the API function
+    const result = await updateBudgetItem(selectedBudgetCategory._id, newAmount);
+    
+    if (result.success) {
+        // Update local state to reflect the change
+        const updatedBudgetItems = budgetItems.map(item => {
+        if (item._id === selectedBudgetCategory._id) {
+            return { 
+            ...item, 
+            amount: parseFloat(newAmount) 
+            };
+        }
+        return item;
+        });
+        
+        // Update state
+        setBudgetItems(updatedBudgetItems);
+        
+        
+        setBudgetFormActive(false);
+        
+        
+        alert('Budget updated successfully!');
+    } else {
+        throw new Error(result.message || 'Failed to update budget');
+    }
+    } catch (error) {
+    // Show error message
+    console.error('Update failed:', error);
+    alert(error.message || 'Failed to update budget');
+    } 
+};
+
 
 const budgetItems = [
     { icon: FaHome, title: "Living", amount: 2000, spent: 2200, color: "text-gray-500" },
@@ -244,7 +302,7 @@ return (
                     <div className="fixed inset-0 bg-black bg-opacity-60 z-40"></div>
 
                     {/* The form */}
-                    <form className="fixed z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[800px] rounded-2xl bg-white border border-[#284b74] p-4 mt-8">
+                    <form onSubmit={handleSubmit} className="fixed z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[800px] rounded-2xl bg-white border border-[#284b74] p-4 mt-8">
                         <button className="text-gray flex items-center hover:text-dark-blue" onClick={() => setBudgetFormActive(false)}>
                             <IoReturnDownBack className="w-6 h-6" />
                         </button>

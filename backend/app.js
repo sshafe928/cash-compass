@@ -6,7 +6,7 @@ const morgan = require('morgan')
 require("dotenv").config();
 const EntriesRoute = require("./routes/Entries");
 const UserRoute = require("./routes/Users.js");
-const connectDB = require("./db/connect");
+const { connectDB } = require('./connect');
 const port = 5000
 
 // Middleware
@@ -20,12 +20,12 @@ app.use(express.urlencoded({extended : false}));
 
 
 //Routes
-app.use('/api/dashboard', require('./routes/photoRoutes'));
-app.use('/api/budget', require('./routes/eventRoutes'));
-app.use('/api/history', require('./routes/newsRoutes'));
-app.use('/api/forms', require('./routes/eagleRoutes'));
-app.use('/api/login', require('./routes/eagleRoutes'));
-app.use('/api/signup', require('./routes/eagleRoutes'));
+app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+app.use('/api/budget', require('./routes/budgetRoutes'));
+app.use('/api/history', require('./routes/historyRoutes'));
+app.use('/api/forms', require('./routes/formsRoutes'));
+app.use('/api/login', require('./routes/userRoutes'));
+app.use('/api/signup', require('./routes/userRoutes'));
 
 
 // Local Middleware
