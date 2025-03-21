@@ -1,5 +1,5 @@
 const asyncWrapper = require('../middleware/async');
-const { getDB } = require('./connect'); 
+const { getDB } = require('../db/connect.js');
 
 const getHistory = async (req, res) => {
     try {
