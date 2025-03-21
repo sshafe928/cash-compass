@@ -21,11 +21,6 @@ const connectDB = async () => {
     }
 };
 
-const getDB = async () => {
-    if (!dbInstance) {
-        dbInstance = await connectDB();  
-    }
-    return dbInstance;
-};
 
-module.exports = { getDB, connectDB };
+
+module.exports = { connectDB };

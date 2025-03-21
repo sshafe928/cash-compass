@@ -40,6 +40,11 @@ const DebtSchema = new mongoose.Schema({
         trim: true,
         required: false,
         default: ''
+    },
+    notes:{
+        type: String,
+        required: true,
+        default: ''
     }
 }, {collection: 'transactions'})
 

@@ -1,25 +1,31 @@
 const asyncWrapper = require('../middleware/async');
-const { getDB } = require('../db/connect.js');
+const budgetItems = require("../models/budgetItems")
 const { ObjectId } = require('mongodb'); 
 
 
 // Get budget items 
 const getBudget = async (req, res) => {
-    try {
-        const db = getDB();
-        const savingItems = await db.transactions.find({
-            "category": { $in: ["Goals"] }
-        });
+    try { 
+        // Get transaction data (combined income and expense)
+        const Items = await budgetItems.find({})
+        
 
-        const budgetItems = await db.transactions.find({
-            "category": { $in: ["Budget"] }
-        })
-        
-        const debtItems = await db.transactions.find({
-            "category": { $in: ["Debt"] }
-        })
-        
-        res.status(200).json({ success: true, savingItems: savingItems, budgetItems: budgetItems, debtItems: debtItems});
+        // Map to format 
+        const formattedBudget = Items
+            .map(Items => ({
+                id: Item._id.toString(),
+                type: Item.category,
+                amount: Item.amount,
+                category: Item.where,
+                date: Item.date.toISOString().split('T')[0],  // Format date to YYYY-MM-DD
+            }));
+
+
+        // Send the response with formatted data
+        res.status(200).json({
+            success: true,
+            transactions: formattedBudget
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

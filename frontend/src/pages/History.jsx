@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import compassLogo from '../assets/images/compassLogo.png'
 import { AiOutlineArrowUp, AiOutlineArrowDown, AiOutlineCreditCard } from "react-icons/ai";
@@ -10,6 +10,8 @@ const History = () => {
         const [option, setOption] = useState("")
         const [category, setCategory] = useState(null)
         const [isFocused, setIsFocused] = useState(false);
+        const [error, setError] = useState([])
+        const [transactions, setTransactions] = useState([]);
     
         const toggleSidebar = () => setIsOpen(!isOpen);
 
@@ -80,39 +82,21 @@ const History = () => {
             }
         };  
 
-        //TRANSACTION DATA
-        const transactions = [
-            { type: "Savings", amount: 50, category: "Travel to Dubai", date: "2025-02-15", description: "Added money towards Dubai trip fund" },
-            { type: "Expense", amount: -300, category: "Healthcare", date: "2025-02-12", description: "Doctor visit and medication" },
-            { type: "Debt", amount: 750, category: "Personal", date: "2025-02-04", description: "New personal loan taken" },
-            { type: "Income", amount: 500, category: "Investments", date: "2025-02-07", description: "Stock dividends" },
-            { type: "Debt", amount: -50, category: "Auto Loans", date: "2025-02-06", description: "Car loan installment payment" },
-            { type: "Savings", amount: 450, category: "Home Renovation", date: "2025-02-12", description: "Added money towards home renovation savings" },
-            { type: "Debt", amount: -30000, category: "Mortgage", date: "2025-02-03", description: "Monthly mortgage payment" },
-            { type: "Income", amount: 3000, category: "Employment", date: "2025-02-05", description: "Monthly salary" },
-            { type: "Expense", amount: -50, category: "Entertainment", date: "2025-02-15", description: "Movie tickets" },
-            { type: "Savings", amount: -500, category: "Upgrade Home Office", date: "2025-02-10", description: "Withdrew savings to cover unexpected car repairs" },
-            { type: "Debt", amount: -1000, category: "Medical Debt", date: "2025-02-07", description: "Hospital bill payment" },
-            { type: "Income", amount: 250, category: "Gifts", date: "2025-02-08", description: "Gift from family" },
-            { type: "Debt", amount: -2000, category: "Student Loans", date: "2025-02-01", description: "Federal student loan payment" },
-            { type: "Expense", amount: -250, category: "Groceries", date: "2025-02-13", description: "Weekly grocery shopping" },
-            { type: "Savings", amount: 100, category: "Buy New Laptop", date: "2025-02-07", description: "Added money towards new laptop savings" },
-            { type: "Income", amount: 600, category: "Government", date: "2025-02-09", description: "Unemployment benefits" },
-            { type: "Debt", amount: 1000, category: "Tax Debt", date: "2025-02-09", description: "New tax debt incurred" },
-            { type: "Expense", amount: -75, category: "Restaurant", date: "2025-02-14", description: "Dinner with friends" },
-            { type: "Savings", amount: -50, category: "Fix Car Transmission", date: "2025-02-05", description: "Withdrew savings to cover emergency medical expense" },
-            { type: "Savings", amount: 25, category: "Learn a New Language", date: "2025-02-18", description: "Added money towards language learning fund" },
-            { type: "Income", amount: 300, category: "Other", date: "2025-02-10", description: "Freelance project payment" },
-            { type: "Expense", amount: -200, category: "Other", date: "2025-02-18", description: "Miscellaneous expenses" },
-            { type: "Expense", amount: -150, category: "Transportation", date: "2025-02-11", description: "Gas and maintenance" },
-            { type: "Savings", amount: 500, category: "Savings", date: "2025-02-10", description: "Set aside money for savings" },
-            { type: "Expense", amount: -1200, category: "Living", date: "2025-02-10", description: "Rent payment" },
-            { type: "Income", amount: 500, category: "Gifts", date: "2025-02-17", description: "Birthday gift for a friend" },
-            { type: "Debt", amount: -10, category: "Credit Card Debt", date: "2025-02-02", description: "Credit card minimum payment" },
-            { type: "Expense", amount: -500, category: "Education", date: "2025-02-16", description: "Online course" },
-            { type: "Debt", amount: 5000, category: "Business Loan", date: "2025-02-10", description: "New business loan taken" },
-            { type: "Savings", amount: -100, category: "Buy New Laptop", date: "2025-02-07", description: "Withdrew savings to cover urgent home repair" },
-        ];
+        useEffect(() => {
+            fetch('http://localhost:5000/api/history')
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.success) {
+                        setTransactions(data.transactions);              
+                    } else {
+                        setError('Failed to load data');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching transactions:', error);
+                    setError('Error fetching data');
+                });
+        }, []);
         
     return (
         <>
@@ -229,7 +213,7 @@ const History = () => {
                                                     </div>
                                                     <div className="hidden sm:block">{item.type}</div>
                                                 </td>
-                                                <td className={`px-4 py-2 ${item.type !== 'Debt' ? item.amount > 0 ? 'text-green-500' : 'text-red-500' : item.amount > 0 ? 'text-yellow-500' : 'text-green-500'} text-sm`}>{item.type === 'income' ? '+' : ''}{item.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+                                                <td className={`px-4 py-2 ${item.type !== 'Debt' ? item.amount > 0 ? 'text-green-500' : 'text-red-500' : item.amount > 0 ? 'text-yellow-500' : 'text-green-500'} text-sm`}>{item.type === 'income' ? '+' : ''}</td>
                                                 <td className="px-4 py-2 text-dark-blue text-sm">{item.category}</td>
                                                 <td className="px-4 py-4 text-dark-blue text-sm hidden sm:table-cell text-nowrap">{item.date}</td>
                                                 <td className="px-4 py-2 text-dark-blue text-sm hidden md:table-cell truncate overflow-hidden max-w-[150px] lg:max-w-[250px] whitespace-nowrap" title={item.description}>

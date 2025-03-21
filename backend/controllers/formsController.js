@@ -1,5 +1,4 @@
 const asyncWrapper = require('../middleware/async');
-const { getDB } = require('../db/connect.js'); 
 
 //Creating and income
 const createIncome = async (req, res) => {
