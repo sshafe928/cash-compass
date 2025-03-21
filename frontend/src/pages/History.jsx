@@ -87,7 +87,7 @@ const History = () => {
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.success) {
-                        setTransactions(data.transactions);              
+                        setTransactions(data.transactions);
                     } else {
                         setError('Failed to load data');
                     }
@@ -192,37 +192,50 @@ const History = () => {
                             </div>
                             {/* TABLE SECTION */}
                             <div className="border border-dark-blue rounded-lg overflow-hidden p-2 bg-white">
-                                <table className="w-full border-collapse">
-                                    <thead className="border-b">
-                                        <tr>
-                                            <th className="px-4 py-4 text-start text-dark-blue text-sm font-semibold hidden sm:block">Type</th>
-                                            <th className="px-4 py-4 text-start text-dark-blue text-sm font-semibold sm:hidden">Type/Date</th>
-                                            <th className="px-4 py-4 text-start text-dark-blue text-sm font-semibold">Amount</th>
-                                            <th className="px-4 py-4 text-start text-dark-blue text-sm font-semibold">Where</th>
-                                            <th className="px-4 py-4 text-start text-dark-blue text-sm font-semibold hidden sm:table-cell">Date</th>
-                                            <th className="px-4 py-4 text-start text-dark-blue text-sm font-semibold hidden md:table-cell">Description</th>
+                            <table className="w-full border-collapse">
+                                <thead className="border-b">
+                                    <tr>
+                                        <th className="px-4 py-4 text-start text-dark-blue text-sm font-semibold hidden sm:block">Type</th>
+                                        <th className="px-4 py-4 text-start text-dark-blue text-sm font-semibold sm:hidden">Type/Date</th>
+                                        <th className="px-4 py-4 text-start text-dark-blue text-sm font-semibold">Amount</th>
+                                        <th className="px-4 py-4 text-start text-dark-blue text-sm font-semibold">Where</th>
+                                        <th className="px-4 py-4 text-start text-dark-blue text-sm font-semibold hidden sm:table-cell">Date</th>
+                                        <th className="px-4 py-4 text-start text-dark-blue text-sm font-semibold hidden md:table-cell">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {transactions.map((item, index) => (
+                                        <tr key={index}>
+                                            <td className="px-4 py-2 text-dark-blue text-sm flex items-center gap-4">
+                                                {getTypeIcon(item.type)}
+                                                <div className="flex flex-col sm:hidden">
+                                                    <p>{item.type}</p>
+                                                    <p className="text-[11px] text-nowrap">{item.date}</p>
+                                                </div>
+                                                <div className="hidden sm:block">{item.type}</div>
+                                            </td>
+
+                                            {/* Apply conditional styling for Amount */}
+                                            <td className={`px-4 py-2 ${item.amount > 0 
+                                                ? item.type === 'Debt' 
+                                                    ? 'text-yellow-500' 
+                                                    : 'text-green-500' 
+                                                : item.type === 'Debt' 
+                                                    ? 'text-green-500' 
+                                                    : 'text-red-500'} text-sm`}>
+                                                {item.type === 'income' ? '+' : ''}
+                                                {item.formattedAmount}  {/* Display formatted amount */}
+                                            </td>
+
+                                            <td className="px-4 py-2 text-dark-blue text-sm">{item.category}</td>
+                                            <td className="px-4 py-4 text-dark-blue text-sm hidden sm:table-cell text-nowrap">{item.date}</td>
+                                            <td className="px-4 py-2 text-dark-blue text-sm hidden md:table-cell truncate overflow-hidden max-w-[150px] lg:max-w-[250px] whitespace-nowrap" title={item.description}>
+                                                {item.description}
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {transactions.map((item, index) => (
-                                            <tr key={index}>
-                                                <td className="px-4 py-2 text-dark-blue text-sm flex items-center gap-4">{getTypeIcon(item.type)}
-                                                    <div className="flex flex-col sm:hidden">
-                                                        <p>{item.type}</p>
-                                                        <p className="text-[11px] text-nowrap">{item.date}</p>
-                                                    </div>
-                                                    <div className="hidden sm:block">{item.type}</div>
-                                                </td>
-                                                <td className={`px-4 py-2 ${item.type !== 'Debt' ? item.amount > 0 ? 'text-green-500' : 'text-red-500' : item.amount > 0 ? 'text-yellow-500' : 'text-green-500'} text-sm`}>{item.type === 'income' ? '+' : ''}</td>
-                                                <td className="px-4 py-2 text-dark-blue text-sm">{item.category}</td>
-                                                <td className="px-4 py-4 text-dark-blue text-sm hidden sm:table-cell text-nowrap">{item.date}</td>
-                                                <td className="px-4 py-2 text-dark-blue text-sm hidden md:table-cell truncate overflow-hidden max-w-[150px] lg:max-w-[250px] whitespace-nowrap" title={item.description}>
-                                                    {item.description}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                    ))}
+                                </tbody>
+                            </table>
                             </div>
                             <div className="flex flex-wrap gap-4 bg-white border border-dark-blue rounded-lg p-8 mt-10">
                                 <div className="flex items-center gap-2">
