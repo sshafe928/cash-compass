@@ -13,7 +13,7 @@ const connectDB = async () => {
         });
         console.log('Connected to MongoDB');
         
-        dbInstance = mongoose.connection.db;  
+        dbInstance = mongoose.connection;  // We want the Mongoose connection here
         return dbInstance;
     } catch (error) {
         console.error('Error connecting to MongoDB:', error);

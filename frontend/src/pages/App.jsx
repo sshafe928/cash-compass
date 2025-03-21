@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // imports for charts/bar
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
@@ -17,6 +17,10 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const Dashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('expenseIncome');
+  const [transactions, setTransactions] = useState([]);
+  const [incomes, setIncome] = useState([]);
+  const [expenses, setExpense] = useState([]);
+  const [error, setError] = useState(null);
 
   const chartData = {
     labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
@@ -44,6 +48,27 @@ const Dashboard = () => {
   const chartDataActive = selectedOption === 'expenseIncome' ? chartData : debtData;
 
   const toggleSidebar = () => setIsOpen(!isOpen);
+
+    useEffect(() => {
+      fetch('http://localhost:5000/api/dashboard')
+          .then((res) => res.json())
+          .then((data) => {
+              if (data.success) {
+                  setTransactions(data.transactions);  // Set transactions array
+                  setIncome(data.incomes);              // Set income array
+                  setExpense(data.expenses);            // Set expense array
+                  
+              } else {
+                  setError('Failed to load data');
+              }
+          })
+          .catch((error) => {
+              console.error('Error fetching transactions:', error);
+              setError('Error fetching data');
+          });
+  }, []);
+
+
 
   //category icons
   const getCategoryIcon = (category) => {
@@ -76,56 +101,55 @@ const Dashboard = () => {
   };  
   
   // Sample transaction data
-  const transactions = [
-    { id: 1, type: "income", amount: 2500, category: "Employment", date: "2025-01-26" },
-    { id: 2, type: "expense", amount: -80, category: "Living", date: "2025-01-25" },
-    { id: 3, type: "expense", amount: -120, category: "Groceries", date: "2025-01-24" },
-    { id: 4, type: "income", amount: 500, category: "Investments", date: "2025-01-23" },
-    { id: 5, type: "expense", amount: -45, category: "Transportation", date: "2025-01-22" },
-    { id: 6, type: "expense", amount: -35, category: "Healthcare", date: "2025-01-21" },
-    { id: 7, type: "expense", amount: -35, category: "Entertainment", date: "2025-01-20" },
-    { id: 8, type: "income", amount: 500, category: "Gifts", date: "2025-01-19" },
-    { id: 9, type: "expense", amount: -35, category: "Education", date: "2025-01-18" },
-    { id: 10, type: "expense", amount: -35, category: "Restaurant", date: "2025-01-17" },
-    { id: 11, type: "expense", amount: -35, category: "Other", date: "2025-01-16" },
-    { id: 12, type: "income", amount: 500, category: "Government", date: "2025-01-15" }
-  ];
-
+  
+    // { id: 1, type: "income", amount: 2500, category: "Employment", date: "2025-01-26" },
+    // { id: 2, type: "expense", amount: -80, category: "Living", date: "2025-01-25" },
+    // { id: 3, type: "expense", amount: -120, category: "Groceries", date: "2025-01-24" },
+    // { id: 4, type: "income", amount: 500, category: "Investments", date: "2025-01-23" },
+    // { id: 5, type: "expense", amount: -45, category: "Transportation", date: "2025-01-22" },
+    // { id: 6, type: "expense", amount: -35, category: "Healthcare", date: "2025-01-21" },
+    // { id: 7, type: "expense", amount: -35, category: "Entertainment", date: "2025-01-20" },
+    // { id: 8, type: "income", amount: 500, category: "Gifts", date: "2025-01-19" },
+    // { id: 9, type: "expense", amount: -35, category: "Education", date: "2025-01-18" },
+    // { id: 10, type: "expense", amount: -35, category: "Restaurant", date: "2025-01-17" },
+    // { id: 11, type: "expense", amount: -35, category: "Other", date: "2025-01-16" },
+    // { id: 12, type: "income", amount: 500, category: "Government", date: "2025-01-15" }
+  
   // income
-  const incomes = [
-    { id: 1, type: "income", amount: 500, category: "Employment", date: "2025-01-05" },
-    { id: 2, type: "income", amount: 600, category: "Employment", date: "2025-02-10" },
-    { id: 3, type: "income", amount: 200, category: "Gifts", date: "2025-01-15" },
-    { id: 4, type: "income", amount: 250, category: "Gifts", date: "2025-03-05" },
-    { id: 5, type: "income", amount: 300, category: "Investments", date: "2025-02-01" },
-    { id: 6, type: "income", amount: 350, category: "Investments", date: "2025-04-12" },
-    { id: 7, type: "income", amount: 150, category: "Government", date: "2025-02-20" },
-    { id: 8, type: "income", amount: 200, category: "Government", date: "2025-05-18" },
-    { id: 9, type: "income", amount: 400, category: "Other", date: "2025-03-01" },
-    { id: 10, type: "income", amount: 450, category: "Other", date: "2025-06-08" },
-  ];  
+  // const incomes = [
+  //   { id: 1, type: "income", amount: 500, category: "Employment", date: "2025-01-05" },
+  //   { id: 2, type: "income", amount: 600, category: "Employment", date: "2025-02-10" },
+  //   { id: 3, type: "income", amount: 200, category: "Gifts", date: "2025-01-15" },
+  //   { id: 4, type: "income", amount: 250, category: "Gifts", date: "2025-03-05" },
+  //   { id: 5, type: "income", amount: 300, category: "Investments", date: "2025-02-01" },
+  //   { id: 6, type: "income", amount: 350, category: "Investments", date: "2025-04-12" },
+  //   { id: 7, type: "income", amount: 150, category: "Government", date: "2025-02-20" },
+  //   { id: 8, type: "income", amount: 200, category: "Government", date: "2025-05-18" },
+  //   { id: 9, type: "income", amount: 400, category: "Other", date: "2025-03-01" },
+  //   { id: 10, type: "income", amount: 450, category: "Other", date: "2025-06-08" },
+  // ];  
 
   // expenses
-  const expenses = [
-    { id: 1, type: "expense", amount: -50, category: "Groceries", date: "2025-01-10" },
-    { id: 2, type: "expense", amount: -80, category: "Living", date: "2025-01-25" },
-    { id: 3, type: "expense", amount: -120, category: "Transportation", date: "2025-02-05" },
-    { id: 4, type: "expense", amount: -30, category: "Entertainment", date: "2025-02-15" },
-    { id: 5, type: "expense", amount: -200, category: "Gifts", date: "2025-03-01" },
-    { id: 6, type: "expense", amount: -60, category: "Restaurant & Dining", date: "2025-03-10" },
-    { id: 7, type: "expense", amount: -90, category: "Healthcare", date: "2025-03-20" },
-    { id: 8, type: "expense", amount: -40, category: "Other", date: "2025-04-01" },
-    { id: 9, type: "expense", amount: -75, category: "Groceries", date: "2025-04-10" },
-    { id: 10, type: "expense", amount: -100, category: "Living", date: "2025-04-25" },
-    { id: 11, type: "expense", amount: -90, category: "Transportation", date: "2025-05-05" },
-    { id: 12, type: "expense", amount: -50, category: "Entertainment", date: "2025-05-15" },
-    { id: 13, type: "expense", amount: -150, category: "Gifts", date: "2025-06-01" },
-    { id: 14, type: "expense", amount: -80, category: "Restaurant & Dining", date: "2025-06-10" },
-    { id: 15, type: "expense", amount: -120, category: "Healthcare", date: "2025-06-20" },
-    { id: 16, type: "expense", amount: -60, category: "Other", date: "2025-07-01" },
-    { id: 15, type: "expense", amount: -180, category: "Education", date: "2025-02-23" },
-    { id: 16, type: "expense", amount: -60, category: "Education", date: "2025-09-15" },
-  ];
+  // const expenses = [
+  //   { id: 1, type: "expense", amount: -50, category: "Groceries", date: "2025-01-10" },
+  //   { id: 2, type: "expense", amount: -80, category: "Living", date: "2025-01-25" },
+  //   { id: 3, type: "expense", amount: -120, category: "Transportation", date: "2025-02-05" },
+  //   { id: 4, type: "expense", amount: -30, category: "Entertainment", date: "2025-02-15" },
+  //   { id: 5, type: "expense", amount: -200, category: "Gifts", date: "2025-03-01" },
+  //   { id: 6, type: "expense", amount: -60, category: "Restaurant & Dining", date: "2025-03-10" },
+  //   { id: 7, type: "expense", amount: -90, category: "Healthcare", date: "2025-03-20" },
+  //   { id: 8, type: "expense", amount: -40, category: "Other", date: "2025-04-01" },
+  //   { id: 9, type: "expense", amount: -75, category: "Groceries", date: "2025-04-10" },
+  //   { id: 10, type: "expense", amount: -100, category: "Living", date: "2025-04-25" },
+  //   { id: 11, type: "expense", amount: -90, category: "Transportation", date: "2025-05-05" },
+  //   { id: 12, type: "expense", amount: -50, category: "Entertainment", date: "2025-05-15" },
+  //   { id: 13, type: "expense", amount: -150, category: "Gifts", date: "2025-06-01" },
+  //   { id: 14, type: "expense", amount: -80, category: "Restaurant & Dining", date: "2025-06-10" },
+  //   { id: 15, type: "expense", amount: -120, category: "Healthcare", date: "2025-06-20" },
+  //   { id: 16, type: "expense", amount: -60, category: "Other", date: "2025-07-01" },
+  //   { id: 15, type: "expense", amount: -180, category: "Education", date: "2025-02-23" },
+  //   { id: 16, type: "expense", amount: -60, category: "Education", date: "2025-09-15" },
+  // ];
 
   const [expensePage, setExpensePage] = useState(0);
   const [incomePage, setIncomePage] = useState(0);
