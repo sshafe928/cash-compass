@@ -4,9 +4,7 @@ const app = express()
 const cors = require('cors')
 const morgan = require('morgan')
 require("dotenv").config();
-const EntriesRoute = require("./routes/Entries");
-const UserRoute = require("./routes/Users.js");
-const { connectDB } = require('./connect');
+const { connectDB } = require('./db/connect.js');
 const port = 5000
 
 // Middleware
