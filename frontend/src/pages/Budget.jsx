@@ -12,6 +12,28 @@ const Budget = () => {
 const [isVisible, setIsVisible] = useState(false);
 const [threshold, setThreshold] = useState(0.4);
 const speedometerRef = useRef(null);
+const [budgetItems, setBudgetItems] = useState([])
+const [savingItems, setSavingItems] = useState([])
+const [debtItems, setDebtItems] = useState([])
+const [Error, setError] = useState()
+
+const iconMap = {
+            "FaHome": FaHome,
+            "FaHeartbeat": FaHeartbeat,
+            "FaCar" : FaCar,
+            "FaShoppingBasket" :FaShoppingBasket,
+            "FaFilm" : FaFilm,
+            "FaGift" : FaGift,
+            "FaUtensils" : FaUtensils,
+            "FaBook" : FaBook,
+            "FaEllipsisH" : FaEllipsisH,
+            "FaGraduationCap" : FaGraduationCap,
+            "FaCreditCard" : FaCreditCard,
+            "FaUser" : FaUser,
+            "FaBriefcase" : FaBriefcase,
+            "FaFileInvoiceDollar" : FaFileInvoiceDollar,
+            // Add more icon mappings as needed
+        };
 
 useEffect(() => {
     const updateThreshold = () => {
@@ -19,7 +41,7 @@ useEffect(() => {
         setThreshold(0.4);
     } else {
         setThreshold(0.8);
-    }
+    } 
     };
 
     updateThreshold();
@@ -52,84 +74,25 @@ const [isOpen, setIsOpen] = useState(false);
 
 const toggleSidebar = () => setIsOpen(!isOpen);
 
-const budgetItems = [
-    { icon: FaHome, title: "Living", amount: 2000, spent: 2200, color: "text-gray-500" },
-    { icon: FaHeartbeat, title: "Healthcare", amount: 250, spent: 100, color: "text-red-500" },
-    { icon: FaCar, title: "Transportation", amount: 120, spent: 80, color: "text-yellow-500" },
-    { icon: FaShoppingBasket, title: "Groceries", amount: 250, spent: 200, color: "text-green-500" },
-    { icon: FaFilm, title: "Entertainment", amount: 100, spent: 60, color: "text-purple-500" },
-    { icon: FaGift, title: "Gifts", amount: 50, spent: 10, color: "text-pink-500" },
-    { icon: FaUtensils, title: "Restaurant & Dining", amount: 150, spent: 120, color: "text-red-400" },
-    { icon: FaBook, title: "Education", amount: 100, spent: 150, color: "text-orange-500" },
-    { icon: FaEllipsisH, title: "Other", amount: 250, spent: 140, color: "text-blue-600" }
-];
-const savingItems = [
-    { title: "Fix Car Transmission", startDate: "01 Jan 25", goalDate: "27 May 26", goalAmount: 250, currentAmount: 200 },
-    { title: "Travel to Dubai", startDate: "01 Jan 25", goalDate: "27 May 26", goalAmount: 250, currentAmount: 10 },
-    { title: "Buy New Laptop", startDate: "01 Jan 25", goalDate: "15 Aug 26", goalAmount: 1200, currentAmount: 300 },
-    { title: "Home Renovation", startDate: "01 Feb 25", goalDate: "10 Dec 26", goalAmount: 5000, currentAmount: 750 },
-    { title: "Learn a New Language", startDate: "01 Mar 25", goalDate: "01 Mar 26", goalAmount: 200, currentAmount: 50 },
-    { title: "Upgrade Home Office", startDate: "01 Apr 25", goalDate: "01 Oct 26", goalAmount: 1500, currentAmount: 1000 },
-];
-const debtItems = [
-    {
-        icon: FaGraduationCap,
-        title: "Student Loans",
-        currentAmount: 2000,
-        color: "text-blue-500",
-        description:"Includes federal and private student loans for tuition, books, housing, and other educational expenses."
-    },
-    {
-        icon: FaCreditCard,
-        title: "Credit Card Debt",
-        currentAmount: 10,
-        color: "text-red-500",
-        description: "Debt from revolving credit cards, including unpaid balances, interest charges, and late fees."
-    },
-    {
-        icon: FaHome,
-        title: "Mortgage",
-        currentAmount: 30000,
-        color: "text-green-500",
-        description: "Home loan debt, including first and second mortgages, home equity loans, and refinancing balances."
-    },
-    {
-        icon: FaUser,
-        title: "Personal",
-        currentAmount: 750,
-        color: "text-purple-500",
-        description: "Unsecured loans for personal use, such as debt consolidation, vacations, weddings, or emergencies."
-    },
-    {
-        icon: FaCar,
-        title: "Auto Loans",
-        currentAmount: 50,
-        color: "text-yellow-500",
-        description: "Loans for purchasing or leasing a car, truck, or motorcycle, including financing and leasing agreements."
-    },
-    {
-        icon: FaHeartbeat,
-        title: "Medical Debt",
-        currentAmount: 1000,
-        color: "text-red-500",
-        description: "Outstanding balances for medical expenses, including hospital bills, surgery, prescriptions, and emergency care."
-    },
-    {
-        icon: FaBriefcase,
-        title: "Business Loans",
-        currentAmount: 1000,
-        color: "text-red-900",
-        description: "Loans taken to fund a business, including startup costs, operational expenses, and equipment purchases."
-    },
-    {
-        icon: FaFileInvoiceDollar,
-        title: "Tax Debt",
-        currentAmount: 1000,
-        color: "text-gray-500",
-        description: "Unpaid federal, state, or local taxes, including income tax, property tax, and penalties for late payments."
-    },
-];
-const totalDebt = debtItems.reduce((sum, item) => sum + item.currentAmount, 0);
+useEffect(() => {
+    fetch('http://localhost:5000/api/budget')
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.success) {
+                setSavingItems(data.savingItems);  
+                setBudgetItems(data.budgetItems);              
+                setDebtItems(data.debtItems);            
+            } else {
+                setError('Failed to load data');
+            }
+        })
+        .catch((error) => {
+            console.error('Error fetching transactions:', error);
+            setError('Error fetching data');
+        });
+}, []);
+
+const totalDebt = debtItems?.reduce((sum, item) => sum + item.currentAmount, 0) || 0;
 const formattedTotalDebt = totalDebt.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
 // resources
@@ -195,7 +158,8 @@ return (
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className="flex-shrink-0">
-                                                <item.icon className={`w-8 h-8 ${item.color}`} />
+                                                {/* Dynamically render icon */}
+                                                {iconMap[item.icon] ? React.createElement(iconMap[item.icon], { className: `w-8 h-8 ${item.color}` }) : null}
                                             </div>
                                             <div className="flex flex-col min-w-0 max-w-[150px] lg:max-w-[110px] xl:max-w-[150px]">
                                                 <h2 className="text-gray-500 text-sm sm:text-base truncate">{item.title}</h2>
@@ -239,7 +203,7 @@ return (
                         </button>
                     </div>
                     <div ref={speedometerRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {savingItems.map((item, index) => (
+                        {savingItems?.map((item, index) => (
                         <div key={index}className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                             <div className="flex justify-between">
                                 <div className="flex flex-col">
@@ -298,7 +262,7 @@ return (
                         <div key={index}className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
                             <div className="flex justify-center items-center gap-4">
                                 <div className="flex-shrink-0">
-                                    <item.icon className={`w-12 h-12 ${item.color}`} />
+                                {iconMap[item.icon] ? React.createElement(iconMap[item.icon], { className: `w-8 h-8 ${item.color}` }) : null}
                                 </div>
                                 <h1 className="text-xl">{item.title}</h1>
                             </div>

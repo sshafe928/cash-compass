@@ -1,33 +1,76 @@
 const asyncWrapper = require('../middleware/async');
-const budgetItems = require("../models/budgetItems")
-const { ObjectId } = require('mongodb'); 
-
+const budgetItems = require("../models/budgetItems");
+const savingItems = require("../models/savingsItems");  
+const debtItems = require("../models/debtItems");
+const { ObjectId } = require('mongodb');
 
 // Get budget items 
 const getBudget = async (req, res) => {
     try { 
-        // Get transaction data (combined income and expense)
-        const Items = await budgetItems.find({})
+
         
 
-        // Map to format 
-        const formattedBudget = Items
-            .map(Items => ({
-                id: Item._id.toString(),
-                type: Item.category,
-                amount: Item.amount,
-                category: Item.where,
-                date: Item.date.toISOString().split('T')[0],  // Format date to YYYY-MM-DD
-            }));
+        
+        // Get budget items
+        const Items = await budgetItems.find({
+            category: { $nin: ["Saving", "Income", "Debt", "Goals", "Expense"] }
+        });
 
+        // Map to format 
+        const formattedBudget = Items.map(Item => ({
+            id: Item._id.toString(),
+            icon: Item.icon,
+            title: Item.title,
+            amount: Item.amount,
+            spent: Item.spent,
+            color: Item.color,
+        }));
+
+        // Get saving items
+        const Goals = await savingItems.find({
+            category: { $nin: ["Saving", "Income", "Debt", "Budget", "Expense"] }
+        });
+
+        // Map to format
+        const formattedGoals = Goals.map(Goal => ({
+            id: Goal._id.toString(),
+            title: Goal.title,
+            startDate: Goal.startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric'}),
+            goalDate: Goal.goalDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric'}),
+            currentAmount: Goal.currentAmount,
+            goalAmount: Goal.goalAmount,
+            category: Goal.category
+        }));
+
+        // Get debt items
+        const Debts = await debtItems.find({
+            category: { $nin: ["Saving", "Income", "Budget", "Expense", "Goals"] }
+        });
+
+        // Map to format
+        const formattedDebts = Debts.map(Debt => ({
+            id: Debt._id.toString(),
+            icon: Debt.icon,
+            title: Debt.title,
+            currentAmount: Debt.currentAmount,
+            color: Debt.color,
+            description: Debt.description,
+        }));
 
         // Send the response with formatted data
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
-            transactions: formattedBudget
+            budgetItems: formattedBudget,
+            savingItems: formattedGoals,
+            debtItems: formattedDebts
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Error fetching data:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Server error while fetching data',
+            error: error.message 
+        });
     }
 };
 

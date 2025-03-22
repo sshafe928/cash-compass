@@ -384,7 +384,7 @@ const Dashboard = () => {
                 </div>
                 {/* Amount on the right */}
                 <span className={`font-semibold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                  {transaction.type === 'income' ? '+' : ''}{transaction.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                  {transaction.type === 'income' ? '+' : ''}{transaction.amount}
                 </span>
               </div>
             ))}

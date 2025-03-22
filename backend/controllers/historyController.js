@@ -6,12 +6,12 @@ const Saving = require('../models/Savings')
 
 const getHistory = async (req, res) => {
     try {
-        const expenseData = await Expense.find({});
-        const debtData = await Debt.find({});
-        const incomeData = await Income.find({});
-        const savingData = await Saving.find({});
+        const expenseData = await Expense.find({category: { $nin: ["Saving", "Income", "Debt", "Goals", "Budget"] }});
+        // const debtData = await Debt.find({category: { $nin: ["Saving", "Income", "Expense"] }});
+        const incomeData = await Income.find({category: { $nin: ["Saving", "Expense", "Debt", "Goals", "Budget"] }});
+        const savingData = await Saving.find({category: { $nin: ["Expense", "Income", "Debt", "Goals", "Budget"] }});
 
-        const combinedData = [...expenseData, ...incomeData, ...savingData, ...debtData];
+        const combinedData = [...expenseData, ...incomeData, ...savingData];
 
         // Sort by date
         const transactions = combinedData.sort((a, b) => new Date(b.date) - new Date(a.date));

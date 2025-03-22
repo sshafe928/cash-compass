@@ -6,39 +6,42 @@ const getDashboard = async (req, res) => {
     try { 
         // Get transaction data (combined income and expense)
         const expenseData = await Expense.find({
-            category: { $ne: "savings" }  // Exclude "savings" category
+            category: { $nin: ["Saving", "Income", "Debt", "Goals", "Budget"] } // Exclude "savings" category
         }).sort({ date: -1 });
-        console.log('Filtered Expense Data:', expenseData);
+        
         
         const incomeData = await Income.find({
-            category: { $ne: "savings" }  // Exclude "savings" category
+            category: { $nin: ["Saving", "Expense", "Debt", "Goals", "Budget"] } // Exclude "savings" category
         }).sort({ date: -1 });
-        console.log('Filtered Income Data:', incomeData);
-
-
+        
+        
+        
         // Combine 
         const combinedData = [...expenseData, ...incomeData];
-
+        
         // Sort by date
         combinedData.sort((a, b) => new Date(b.date) - new Date(a.date));
-
+        
         // Limit to 12 transactions
         const transactions = combinedData.slice(0, 12);
-
+        
         // Map to format 
         const formattedTransactions = transactions
-            .filter(transaction => transaction.category !== "savings") // Exclude "savings"
+            .filter(transaction => {
+                // Make sure category is not "savings" and also ensure it’s not null, undefined, or empty string
+                return transaction.category && transaction.category.trim() !== "Saving";
+            })
             .map(transaction => ({
                 id: transaction._id.toString(),
                 type: transaction.category === "Income" ? "income" : "expense",
-                amount: transaction.amount,
+                amount: transaction.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
                 category: transaction.where,
                 date: transaction.date.toISOString().split('T')[0],  // Format date to YYYY-MM-DD
             }));
 
         // Get all income and expense data separately
-        const income = await Income.find({});
-        const expense = await Expense.find({});
+        const income = await Income.find({ category: { $nin: ["Saving", "Expense", "Debt", "Goals", "Budget"] }});
+        const expense = await Expense.find({ category: { $nin: ["Saving", "Income", "Debt", "Goals", "Budget"] }});
 
         // Map the income and expense data to match the expected format
         const formattedIncome = income.map(transaction => ({

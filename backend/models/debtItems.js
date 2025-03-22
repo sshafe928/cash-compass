@@ -7,7 +7,8 @@ const DebtSchema = new mongoose.Schema({
         default: 'Debt'  
     },
     icon:{
-        type : Object,
+        type : String,
+        required: true
     },
     currentAmount: {
         type: Number,
