@@ -21,6 +21,10 @@ const Dashboard = () => {
   const [incomes, setIncome] = useState([]);
   const [expenses, setExpense] = useState([]);
   const [error, setError] = useState(null);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [savings, setSavings] = useState(0);
+  const [totalBudget, setTotalBudget] = useState(0);
+  const [displayedGoal, setDisplayedGoal] = useState([]);
 
   const chartData = {
     labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
@@ -37,12 +41,19 @@ const Dashboard = () => {
     ],
   };
 
-  const chartOptions = { responsive: true, plugins: { legend: { position: "top" }, title: { display: true, text: selectedOption === 'expenseIncome' ? "Income and Expenses Overview" : "Debt Overview" } } };
+  const chartOptions = { 
+    responsive: true, 
+    plugins: { 
+      legend: { position: "top" }, 
+      title: { 
+        display: true, 
+        text: selectedOption === 'expenseIncome' ? "Income and Expenses Overview" : "Debt Overview" 
+      } 
+    } 
+  };
 
   // Handle the dropdown change
-  const handleChange = (event) => {
-    setSelectedOption(event.target.value);
-  };
+  const handleChange = (event) => setSelectedOption(event.target.value);
 
   // Use the selected option to decide which data to display
   const chartDataActive = selectedOption === 'expenseIncome' ? chartData : debtData;
@@ -51,65 +62,53 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetch('http://localhost:5000/api/dashboard')
-        .then((res) => res.json())
-        .then((data) => {
-            if (data.success) {
-                setTransactions(data.transactions);  
-                setIncome(data.income);              
-                setExpense(data.expense);            
-            } else {
-                setError('Failed to load data');
-            }
-        })
-        .catch((error) => {
-            console.error('Error fetching transactions:', error);
-            setError('Error fetching data');
-        });
-}, []);
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          console.log('Dashboard Data:', data);
+          setTransactions(data.transactions);  
+          setIncome(data.income);              
+          setExpense(data.expense);     
+          setTotalAmount(data.totalAmount);  
+          setSavings(data.totalSavings);  
+          setTotalBudget(data.totalBudget); 
+          setDisplayedGoal(data.displayedGoal);
+            
+        } else {
+          setError('Failed to load data');
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching transactions:', error);
+        setError('Error fetching data');
+      });
+  }, []);
 
-
-  //category icons
   const getCategoryIcon = (category) => {
     switch (category.toLowerCase()) {
-      case "employment":
-        return <FaBriefcase className="w-6 h-6 text-blue-500" />;
-      case "living":
-        return <FaHome className="w-6 h-6 text-gray-500" />;
-      case "groceries":
-        return <FaShoppingBasket className="w-6 h-6 text-green-500" />;
-      case "investments":
-        return <FaChartLine className="w-6 h-6 text-indigo-500" />;
-      case "transportation":
-        return <FaCar className="w-6 h-6 text-yellow-500" />;
-      case "healthcare":
-        return <FaHeartbeat className="w-6 h-6 text-red-500" />;
-      case "entertainment":
-        return <FaFilm className="w-6 h-6 text-purple-500" />;
-      case "gifts":
-        return <FaGift className="w-6 h-6 text-pink-500" />;
-      case "education":
-        return <FaBook className="w-6 h-6 text-orange-500" />;
-      case "restaurant":
-        return <FaUtensils className="w-6 h-6 text-red-400" />;
-      case "government":
-        return <FaLandmark className="w-6 h-6 text-blue-600" />;
-      default:
-        return <FaEllipsisH className="w-6 h-6 text-blue-600" />; // Default icon for other categories
+      case "employment": return <FaBriefcase className="w-6 h-6 text-blue-500" />;
+      case "living": return <FaHome className="w-6 h-6 text-gray-500" />;
+      case "groceries": return <FaShoppingBasket className="w-6 h-6 text-green-500" />;
+      case "investments": return <FaChartLine className="w-6 h-6 text-indigo-500" />;
+      case "transportation": return <FaCar className="w-6 h-6 text-yellow-500" />;
+      case "healthcare": return <FaHeartbeat className="w-6 h-6 text-red-500" />;
+      case "entertainment": return <FaFilm className="w-6 h-6 text-purple-500" />;
+      case "gifts": return <FaGift className="w-6 h-6 text-pink-500" />;
+      case "education": return <FaBook className="w-6 h-6 text-orange-500" />;
+      case "restaurant": return <FaUtensils className="w-6 h-6 text-red-400" />;
+      case "government": return <FaLandmark className="w-6 h-6 text-blue-600" />;
+      default: return <FaEllipsisH className="w-6 h-6 text-blue-600" />;
     }
   };  
-  
   
   const [expensePage, setExpensePage] = useState(0);
   const [incomePage, setIncomePage] = useState(0);
   const itemsPerPage = 3;
 
-  // Function to group and sort data by category
   const groupAndSort = (data) => {
     return Object.entries(
       data.reduce((acc, item) => {
-        if (!acc[item.category]) {
-          acc[item.category] = 0;
-        }
+        if (!acc[item.category]) acc[item.category] = 0;
         acc[item.category] += Math.abs(item.amount);
         return acc;
       }, {})
@@ -125,80 +124,29 @@ const Dashboard = () => {
   const expensePageCount = Math.ceil(groupedExpenses.length / itemsPerPage);
   const incomePageCount = Math.ceil(groupedIncomes.length / itemsPerPage);
 
-  // Paginate expenses and incomes separately
-  const currentExpenses = groupedExpenses.slice(
-    expensePage * itemsPerPage,
-    (expensePage + 1) * itemsPerPage
-  );
+  const currentExpenses = groupedExpenses.slice(expensePage * itemsPerPage, (expensePage + 1) * itemsPerPage);
+  const currentIncomes = groupedIncomes.slice(incomePage * itemsPerPage, (incomePage + 1) * itemsPerPage);
 
-  const currentIncomes = groupedIncomes.slice(
-    incomePage * itemsPerPage,
-    (incomePage + 1) * itemsPerPage
-  );
+  const nextExpensePage = () => setExpensePage((prev) => (prev + 1) % expensePageCount);
+  const prevExpensePage = () => setExpensePage((prev) => (prev - 1 + expensePageCount) % expensePageCount);
+  const nextIncomePage = () => setIncomePage((prev) => (prev + 1) % incomePageCount);
+  const prevIncomePage = () => setIncomePage((prev) => (prev - 1 + incomePageCount) % incomePageCount);
 
-  // Separate navigation functions for expenses and incomes
-  const nextExpensePage = () => {
-    setExpensePage((prev) => (prev + 1) % expensePageCount);
-  };
+  const startAmount = 0;
+  const currentAmount = totalAmount;
 
-  const prevExpensePage = () => {
-    setExpensePage((prev) => (prev - 1 + expensePageCount) % expensePageCount);
-  };
-
-  const nextIncomePage = () => {
-    setIncomePage((prev) => (prev + 1) % incomePageCount);
-  };
-
-  const prevIncomePage = () => {
-    setIncomePage((prev) => (prev - 1 + incomePageCount) % incomePageCount);
-  };
-
-  // percent up/down math will be the starting amount from the given time frame to now
-  const startAmount = 9487;
-  const currentAmount = 11013;
   function calculatePercentageIncrease(startAmount, currentAmount) {
-    if (startAmount === 0) {
-        return currentAmount > 0 ? 100 : 0;
-    }
-    const percentageIncrease = ((currentAmount - startAmount) / startAmount) * 100;
-    return percentageIncrease;
+    if (startAmount === 0) return currentAmount > 0 ? 100 : 0;
+    return ((currentAmount - startAmount) / startAmount) * 100;
   }
+
   const percent = calculatePercentageIncrease(startAmount, currentAmount);
+  
+  const formattedSavings = savings;
+  const formattedBalance = totalAmount;
+  const formattedBudget = totalBudget;
 
-  // savings total
-  const totalSavings = 2592;
-
-  const formattedSavings = totalSavings.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  const formattedBalance = currentAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-  // budget data
-  const budgetItems = [
-      { icon: FaHome, title: "Housing", amount: 250, color: "text-gray-500" },
-      { icon: FaHeartbeat, title: "Healthcare", amount: 250, color: "text-red-500" },
-      { icon: FaCar, title: "Transportation", amount: 250, color: "text-yellow-500" },
-      { icon: FaShoppingBasket, title: "Groceries", amount: 250, color: "text-green-500" },
-      { icon: FaFilm, title: "Entertainment", amount: 250, color: "text-purple-500" },
-      { icon: FaGift, title: "Gifts", amount: 250, color: "text-pink-500" },
-      { icon: FaUtensils, title: "Restaurant & Dining", amount: 250, color: "text-red-400" },
-      { icon: FaBook, title: "Education", amount: 250, color: "text-orange-500" },
-      { icon: FaLandmark, title: "Government", amount: 250, color: "text-blue-600" }
-  ];
-
-  const totalBudget = budgetItems.reduce((sum, item) => sum + item.amount, 0);
-  const formattedBudget = totalBudget.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-  // saving goal display mock data
-  const savingItems = [
-    { title: "Fix Car Transmission", startDate: "01 Jan 25", goalDate: "27 May 26", goalAmount: 250, currentAmount: 197 },
-    { title: "Travel to Dubai", startDate: "01 Jan 25", goalDate: "27 May 26", goalAmount: 250, currentAmount: 10 },
-    { title: "Buy New Laptop", startDate: "01 Jan 25", goalDate: "15 Aug 26", goalAmount: 1200, currentAmount: 300 },
-    { title: "Home Renovation", startDate: "01 Feb 25", goalDate: "10 Dec 26", goalAmount: 5000, currentAmount: 750 },
-    { title: "Learn a New Language", startDate: "01 Mar 25", goalDate: "01 Mar 26", goalAmount: 200, currentAmount: 50 },
-    { title: "Upgrade Home Office", startDate: "01 Apr 25", goalDate: "01 Oct 26", goalAmount: 1500, currentAmount: 1000 },
-  ];
-
-  // progress bar math
-  const displayedGoal = savingItems[Math.floor(Math.random() * savingItems.length)];
+  
   const progress = (displayedGoal.currentAmount / displayedGoal.goalAmount) * 100;
 
   return (
@@ -247,7 +195,7 @@ const Dashboard = () => {
                 <div className="flex justify-between">
                   <div className="flex flex-col gap-4">
                     <h1 className="text-xl text-dark-blue">Total Balance</h1>
-                    <h1 className="font-bold text-3xl text-dark-blue">${formattedBalance}</h1>
+                    <h1 className="font-bold text-3xl text-dark-blue">{formattedBalance}</h1>
                   </div>
                   {/* percent display */}
                   <div className="flex gap-4">
@@ -266,7 +214,7 @@ const Dashboard = () => {
                 {/* Monthly budget */}
                 <div className="flex flex-col gap-2 mt-4">
                   <h1 className="text-xl text-dark-blue">Total Savings</h1>
-                  <h1 className="font-bold text-3xl text-dark-blue">${formattedSavings}</h1>
+                  <h1 className="font-bold text-3xl text-dark-blue">{formattedSavings}</h1>
                 </div>
               </div>
 
@@ -281,7 +229,7 @@ const Dashboard = () => {
                   <TbTargetArrow className="text-red-600 w-16 h-16" />
                   <div className="flex flex-col w-full">
                     <h1 className="text-xl text-dark-blue">{displayedGoal.title}</h1>
-                    {/* progress bar */}
+                    
                     <div className="w-full bg-gray-200 rounded-full h-4 mt-2">
                       <div className="bg-green-500 h-4 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
                     </div>
@@ -291,7 +239,7 @@ const Dashboard = () => {
                 {/* savings section */}
                 <div className="flex flex-col gap-2">
                   <h1 className="text-xl text-dark-blue">Total Monthly Budget</h1>
-                  <h1 className="text-dark-blue text-2xl font-bold">${formattedBudget}</h1>
+                  <h1 className="text-dark-blue text-2xl font-bold">{formattedBudget}</h1>
                 </div>
               </div>
             </div>
