@@ -1,70 +1,48 @@
 const asyncWrapper = require('../middleware/async');
+const Savings = require('../models/Savings');
+const savingsItems = require('../models/savingsItems');
+const debtItems = require('../models/debtItems');
 
-//Creating and income
-const createIncome = async (req, res) => {
+const getForms = async (req, res) => {
     try {
-        const { title, description, location } = req.body;
-        
-        if (!title || !description) {
-            return res.status(400).json({ message: 'Title and description are required' });
-        }
 
-        const newNews = new News({
-            title,
-            description,
-            location,
+        // Calculate total savings
+        const savings = await Savings.find({ category: "Saving" });
+        const totalSavings = savings.reduce((acc, item) => {
+            return item.where === "in" ? acc + item.amount : acc - item.amount;
+        }, 0);
+        const totalSavingsFormatted = totalSavings.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+
+        // Fetch and format goals
+        const goals = await savingsItems.find({ category: { $nin: ["Saving", "Expense", "Debt", "Budget", "Income"] } });
+        
+        const formattedGoals = goals.map(goal => ({
+            id: goal._id.toString(),
+            title: goal.title,
+            goalAmount: goal.goalAmount !== undefined ? goal.goalAmount : 0,
+            currentAmount: goal.currentAmount !== undefined ? goal.currentAmount : 0, 
+        }));
+
+        // Get debt items
+        const Items = await debtItems.find({ category: "Debt" });
+        const formattedDebtItems = Items.map(item => ({
+            id: item._id.toString(),
+            title: item.title,
+            currentAmount: item.currentAmount,
+        }));
+
+        // Send the response with all goals instead of a random one
+        res.status(200).json({
+            success: true,
+            totalSavings: totalSavingsFormatted,
+            savingItems: formattedGoals, // Send all goals instead of just a random one
+            debtItems: formattedDebtItems,
         });
 
-        await newNews.save();
-        return res.status(201).json({ message: 'News created successfully', news: newNews });
     } catch (error) {
-        console.error('Error creating news:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+        console.error("Error occurred in getForms:", error); // Log the error for debugging
+        res.status(500).json({ success: false, message: "Something went wrong. Please try again later." });
     }
 };
 
-
-// Creating and expense
-const createExpense = async (req, res) => {
-    try {
-        const { title, description, location } = req.body;
-        
-        if (!title || !description) {
-            return res.status(400).json({ message: 'Title and description are required' });
-        }
-
-        const newNews = new News({
-            title,
-            description,
-            location,
-        });
-
-        await newNews.save();
-        return res.status(201).json({ message: 'News created successfully', news: newNews });
-    } catch (error) {
-        console.error('Error creating news:', error);
-        return res.status(500).json({ message: 'Internal server error' });
-    }
-};
-
-const createSaving = async (req, res) => {
-    try {
-        const { title, description, location } = req.body;
-        
-        if (!title || !description) {
-            return res.status(400).json({ message: 'Title and description are required' });
-        }
-
-        const newNews = new News({
-            title,
-            description,
-            location,
-        });
-
-        await newNews.save();
-        return res.status(201).json({ message: 'News created successfully', news: newNews });
-    } catch (error) {
-        console.error('Error creating news:', error);
-        return res.status(500).json({ message: 'Internal server error' });
-    }
-};
+module.exports = { getForms };

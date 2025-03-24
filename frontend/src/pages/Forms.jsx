@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { IoReturnDownBack } from "react-icons/io5";
 import compassLogo from '../assets/images/compassLogo.png'
 //even tho not used its needed for data so no errors
 import { FaHome, FaCar, FaHeartbeat, FaGraduationCap, FaCreditCard, FaUser, FaBriefcase, FaFileInvoiceDollar} from "react-icons/fa";
+import axios from "axios";
 
 const Forms = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState("")
     const [formActive, setFormActive] = useState(false)
+    const [error, setError] = useState(null);
+    const [totalSavings, setTotalSavings] = useState(0);
+    const [savingItems, setSavingItems] = useState([]);
+    const [debtItems, setDebtItems] = useState([]);
 
     function handleOption(variable){
         if(variable){
@@ -18,78 +23,143 @@ const Forms = () => {
 
     const toggleSidebar = () => setIsOpen(!isOpen);
 
-    // savings total
-    const totalSavings = 2592;
+        useEffect(() => {
+            fetch('http://localhost:5000/api/forms')
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                console.log('Forms Data:', data); 
+                setTotalSavings(data.totalSavings);  
+                setSavingItems(data.savingItems);
+                setDebtItems(data.debtItems);
+                    
+                } else {
+                setError('Failed to load data');
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching transactions:', error);
+                setError('Error fetching data');
+            });
+        }, []);
 
-    //GOAL DATA
-    const savingItems = [
-        { title: "Fix Car Transmission", startDate: "01 Jan 25", goalDate: "27 May 26", goalAmount: 250, currentAmount: 200 },
-        { title: "Travel to Dubai", startDate: "01 Jan 25", goalDate: "27 May 26", goalAmount: 250, currentAmount: 10 },
-        { title: "Buy New Laptop", startDate: "01 Jan 25", goalDate: "15 Aug 26", goalAmount: 1200, currentAmount: 300 },
-        { title: "Home Renovation", startDate: "01 Feb 25", goalDate: "10 Dec 26", goalAmount: 5000, currentAmount: 750 },
-        { title: "Learn a New Language", startDate: "01 Mar 25", goalDate: "01 Mar 26", goalAmount: 200, currentAmount: 50 },
-        { title: "Upgrade Home Office", startDate: "01 Apr 25", goalDate: "01 Oct 26", goalAmount: 1500, currentAmount: 1000 },
-    ];
+        const handleIncomeSubmit = (e) => {
+            e.preventDefault();
+        
+            // Collect data
+            const incomeCategory = e.target["income-source"].value;
+            const incomeDate = e.target["income-date"].value;
+            const incomeAmount = e.target["income-amount"].value;
+            const incomeDescription = e.target["description"].value;
+        
+            const data =  {
+            incomeCategory,
+            incomeDate,
+            incomeAmount,
+            incomeDescription,
+            };
+        
+            try {
+                // Send POST request to backend API
+                const response =  axios.post("/api/forms", data);
+            
+                // Handle successful response (you can also display a success message here)
+                console.log("Income submitted successfully:", response.data);
+            } catch (error) {
+                // Handle error (you can display an error message here)
+                console.error("There was an error submitting the income:", error);
+            }
+        };
 
-    //DEBT DATA
-    const debtItems = [
-        {
-            icon: FaGraduationCap,
-            title: "Student Loans",
-            currentAmount: 2000,
-            color: "text-blue-500",
-            description: "Includes fed spent: 10,eral and private student loans for tuition, books, housing, and other educational expenses."
-        },
-        {
-            icon: FaCreditCard,
-            title: "Credit Card Debt",
-            currentAmount: 10,
-            color: "text-red-500",
-            description: "Debt from revolving credit cards, including unpaid balances, interest charges, and late fees."
-        },
-        {
-            icon: FaHome,
-            title: "Mortgage",
-            currentAmount: 30000,
-            color: "text-green-500",
-            description: "Home loan debt, including first and second mortgages, home equity loans, and refinancing balances."
-        },
-        {
-            icon: FaUser,
-            title: "Personal",
-            currentAmount: 750,
-            color: "text-purple-500",
-            description: "Unsecured loans for personal use, such as debt consolidation, vacations, weddings, or emergencies."
-        },
-        {
-            icon: FaCar,
-            title: "Auto Loans",
-            currentAmount: 50,
-            color: "text-yellow-500",
-            description: "Loans for purchasing or leasing a car, truck, or motorcycle, including financing and leasing agreements."
-        },
-        {
-            icon: FaHeartbeat,
-            title: "Medical Debt",
-            currentAmount: 1000,
-            color: "text-red-500",
-            description: "Outstanding balances for medical expenses, including hospital bills, surgery, prescriptions, and emergency care."
-        },
-        {
-            icon: FaBriefcase,
-            title: "Business Loans",
-            currentAmount: 1000,
-            color: "text-red-900",
-            description: "Loans taken to fund a business, including startup costs, operational expenses, and equipment purchases."
-        },
-        {
-            icon: FaFileInvoiceDollar,
-            title: "Tax Debt",
-            currentAmount: 1000,
-            color: "text-gray-500",
-            description: "Unpaid federal, state, or local taxes, including income tax, property tax, and penalties for late payments."
-        },
-    ];
+        const handleExpenseSubmit = (e) => {
+            e.preventDefault();
+        
+            // Collect data
+            const expenseCategory = e.target["expense-category"].value;
+            const expenseDate = e.target["expense-date"].value;
+            const expenseAmount = e.target["expense-amount"].value;
+            const expenseDescription = e.target["description"].value;
+        
+            const data =  {
+            expenseCategory,
+            expenseDate,
+            expenseAmount,
+            expenseDescription,
+            };
+        
+            try {
+                // Send POST request to backend API
+                const response = axios.post("/api/forms", data);
+            
+                // Handle successful response (you can also display a success message here)
+                console.log("Income submitted successfully:", response.data);
+            } catch (error) {
+                // Handle error (you can display an error message here)
+                console.error("There was an error submitting the income:", error);
+            }
+        };
+
+        const handleSavingsSubmit = (e) => {
+            e.preventDefault();
+        
+            // Collect data
+            const savingsCategory = e.target["savings-category"].value;
+            const savingsTransactionType = e.target["savings-transaction"].value;
+            const savingsDate = e.target["savings-date"].value;
+            const savingsAmount = e.target["savings-amount"].value;
+            const savingsDescription = e.target["description"].value;
+        
+            const data =  {
+            savingsCategory,
+            savingsTransactionType,
+            savingsDate,
+            savingsAmount,
+            savingsDescription,
+            };
+        
+            try {
+                // Send POST request to backend API
+                const response = axios.post("/api/forms", data);
+            
+                // Handle successful response (you can also display a success message here)
+                console.log("Income submitted successfully:", response.data);
+            } catch (error) {
+                // Handle error (you can display an error message here)
+                console.error("There was an error submitting the income:", error);
+            }
+        };
+
+        const handleDebtSubmit = (e) => {
+            e.preventDefault();
+        
+            // Collect data
+            const debtCategory = e.target["debt-type"].value;
+            const debtAction = e.target["debt-action"].value;
+            const debtDate = e.target["debt-date"].value;
+            const debtAmount = e.target["debt-amount"].value;
+            const debtDescription = e.target["description"].value;
+        
+            const data = {
+            debtCategory,
+            debtAction,
+            debtDate,
+            debtAmount,
+            debtDescription,
+            };
+        
+            try {
+                // Send POST request to backend API
+                const response = axios.post("/api/forms", data);
+            
+                // Handle successful response (you can also display a success message here)
+                console.log("Income submitted successfully:", response.data);
+            } catch (error) {
+                // Handle error (you can display an error message here)
+                console.error("There was an error submitting the income:", error);
+            }
+        };
+
+
     
     return (
         <>
@@ -152,7 +222,7 @@ const Forms = () => {
                     }
                     {/* INCOME FORM */}
                     {selectedOption === "income" && formActive && (
-                        <form className="rounded-2xl bg-white max-w-[800px] min-h-[600px] border border-[#284b74] mx-auto p-4 mt-8">
+                        <form className="rounded-2xl bg-white max-w-[800px] min-h-[600px] border border-[#284b74] mx-auto p-4 mt-8" onSubmit={handleIncomeSubmit} >
                             <button className="text-gray flex items-center hover:text-dark-blue" onClick={() => setFormActive(false)}>
                                 <IoReturnDownBack className="w-6 h-6" />
                             </button>
@@ -198,7 +268,7 @@ const Forms = () => {
                     )}
                     {/* EXPENSES FORM */}
                     {selectedOption === "expense" && formActive && (
-                        <form className="rounded-2xl bg-white max-w-[800px] min-h-[600px] border border-[#284b74] mx-auto p-4 mt-8">
+                        <form className="rounded-2xl bg-white max-w-[800px] min-h-[600px] border border-[#284b74] mx-auto p-4 mt-8" onSubmit={handleExpenseSubmit}>
                             <button className="text-gray flex items-center hover:text-dark-blue" onClick={() => setFormActive(false)}>
                                 <IoReturnDownBack className="w-6 h-6" />
                             </button>
@@ -248,7 +318,7 @@ const Forms = () => {
                     )}
                     {/* SAVINGS FORM */}
                     {selectedOption === "savings" && formActive && (
-                        <form className="rounded-2xl bg-white max-w-[800px] min-h-[600px] border border-[#284b74] mx-auto p-4 mt-8">
+                        <form className="rounded-2xl bg-white max-w-[800px] min-h-[600px] border border-[#284b74] mx-auto p-4 mt-8" onSubmit={handleSavingsSubmit}>
                             <button className="text-gray flex items-center hover:text-dark-blue" onClick={() => setFormActive(false)}>
                                 <IoReturnDownBack className="w-6 h-6" />
                             </button>
@@ -259,7 +329,7 @@ const Forms = () => {
                                 <div className="flex flex-col mt-2">
                                     <label className="text-left text-md text-gray-700 font-medium" htmlFor="savings-category">Savings Category</label>
                                     <select className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]" required>
-                                        <option value="Student">Savings Balance - ${totalSavings}</option>
+                                        <option value="Student">Savings Balance - {totalSavings}</option>
                                         {/* goals dynamically displayed here */}
                                         {savingItems.map(item => (
                                             <option key={item.title} value={item.title}>{item.title} - ${item.currentAmount}/${item.goalAmount}</option>
@@ -303,7 +373,7 @@ const Forms = () => {
                     )}
                     {/* DEBT FORM */}
                     {selectedOption === "debt" && formActive && (
-                        <form className="rounded-2xl bg-white max-w-[800px] min-h-[600px] border border-[#284b74] mx-auto p-4 mt-8">
+                        <form className="rounded-2xl bg-white max-w-[800px] min-h-[600px] border border-[#284b74] mx-auto p-4 mt-8" onSubmit={handleDebtSubmit}>
                             <button className="text-gray flex items-center hover:text-dark-blue" onClick={() => setFormActive(false)}>
                                 <IoReturnDownBack className="w-6 h-6" />
                             </button>
