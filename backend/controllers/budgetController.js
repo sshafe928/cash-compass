@@ -1,22 +1,83 @@
 const asyncWrapper = require('../middleware/async');
 const budgetItems = require("../models/budgetItems");
-const savingItems = require("../models/savingsItems");  
+const savingItems = require("../models/savingsItems");
 const debtItems = require("../models/debtItems");
+const expenses = require('../models/Expense_entry');
 const { ObjectId } = require('mongodb');
+const currentDate = new Date();
 
 // Get budget items 
 const getBudget = async (req, res) => {
-    try { 
-
-        
-
-        
-        // Get budget items
+    try {
+        // Get budget items (excluding certain categories)
         const Items = await budgetItems.find({
             category: { $nin: ["Saving", "Income", "Debt", "Goals", "Expense"] }
         });
 
-        // Map to format 
+        // Get the current month and year
+        const currentMonth = currentDate.getMonth(); // 0 - 11 (January - December)
+        const currentYear = currentDate.getFullYear(); // e.g., 2025
+
+        // Get the start and end of the current month
+        const startOfMonth = new Date(currentYear, currentMonth, 1);  // Start of the current month
+        const endOfMonth = new Date(currentYear, currentMonth + 1, 0); // End of the current month
+
+        // Query the database for expenses that occurred in the current month
+        const expenseItems = await expenses.find({
+            date: { 
+                $gte: startOfMonth, 
+                $lt: endOfMonth     
+            }
+        });
+
+        // Initialize an object to hold the summed expenses for each category
+        const categorySums = {
+            Living: 0,
+            Transportation: 0,
+            Healthcare: 0,
+            Groceries: 0,
+            Restaurant: 0,
+            Entertainment: 0,
+            Education: 0,
+            Gifts: 0,
+            Other: 0
+        };
+
+        // Loop through the expenses and add them to the corresponding category sum
+        expenseItems.forEach(expense => {
+            const category = expense.where; // Get the category (Living, Transportation, etc.)
+            const amount = expense.amount;  // Get the amount for the expense
+
+            // Add the amount to the correct category
+            if (categorySums.hasOwnProperty(category)) {
+                categorySums[category] += amount;
+            } else {
+                categorySums[category] = amount;  // If a new category is found (optional)
+            }
+        });
+
+        // Now, update each budget item based on the total expense for that category
+        for (let item of Items) {
+            const category = item.category;
+        
+            // Ensure the category sum is applied, and the 'spent' field is updated
+            if (categorySums.hasOwnProperty(category)) {
+                item.spent = categorySums[category];
+            } else {
+                item.spent = 0;
+            }
+        
+            // Ensure that you preserve the 'user' field when updating
+            const updatedItem = await item.updateOne(
+                { _id: item._id },
+                { $set: { spent: item.spent } }
+            );
+            
+            // Alternatively, if you're using save(), make sure user is not lost
+            await item.save();
+        }
+
+        // Map to format budget items
         const formattedBudget = Items.map(Item => ({
             id: Item._id.toString(),
             icon: Item.icon,
@@ -31,7 +92,7 @@ const getBudget = async (req, res) => {
             category: { $nin: ["Saving", "Income", "Debt", "Budget", "Expense"] }
         });
 
-        // Map to format
+        // Map to format goals
         const formattedGoals = Goals.map(Goal => ({
             id: Goal._id.toString(),
             title: Goal.title,
@@ -47,7 +108,7 @@ const getBudget = async (req, res) => {
             category: { $nin: ["Saving", "Income", "Budget", "Expense", "Goals"] }
         });
 
-        // Map to format
+        // Map to format debt items
         const formattedDebts = Debts.map(Debt => ({
             id: Debt._id.toString(),
             icon: Debt.icon,
@@ -64,6 +125,7 @@ const getBudget = async (req, res) => {
             savingItems: formattedGoals,
             debtItems: formattedDebts
         });
+
     } catch (error) {
         console.error('Error fetching data:', error);
         return res.status(500).json({ 
@@ -74,52 +136,4 @@ const getBudget = async (req, res) => {
     }
 };
 
-// New function to update budget
-const updateBudget = asyncWrapper(async (req, res) => {
-    const { id, newAmount } = req.body;
-    
-    // Validate input
-    if (!id || !newAmount || isNaN(parseFloat(newAmount))) {
-        return res.status(400).json({ 
-            success: false, 
-            message: 'Please provide valid id and newAmount'
-        });
-    }
-    
-    try {
-        const db = getDB();
-        
-        // Convert string to number and ensure 2 decimal places
-        const formattedAmount = parseFloat(parseFloat(newAmount).toFixed(2));
-        
-        // Update the budget document
-        const result = await db.transactions.updateOne(
-            { _id: new ObjectId(id) },
-            { $set: { amount: formattedAmount } }
-        );
-        
-        // Check if document was found and updated
-        if (result.matchedCount === 0) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'Budget category not found'
-            });
-        }
-        
-        // Return success response
-        return res.status(200).json({ 
-            success: true, 
-            message: 'Budget updated successfully',
-            updatedAmount: formattedAmount
-        });
-    } catch (error) {
-        console.error('Error updating budget:', error);
-        return res.status(500).json({ 
-            success: false, 
-            message: 'Server error while updating budget',
-            error: error.message 
-        });
-    }
-});
-
-module.exports = { getBudget, updateBudget };
+module.exports = { getBudget };
