@@ -73,7 +73,7 @@ const History = () => {
                     return <div className="flex items-center justify-center w-8 h-8 bg-red-500 rounded-full text-white"><AiOutlineArrowDown size={18}/></div>;
                 case "income":
                     return <div className="flex items-center justify-center w-8 h-8 bg-green-500 rounded-full text-white"><AiOutlineArrowUp size={18}/></div>;
-                case "savings":
+                case "saving":
                     return <div className="flex items-center justify-center w-8 h-8 bg-blue-500 rounded-full text-white"><GiPiggyBank size={18}/></div>;
                 case "debt":
                     return <div className="flex items-center justify-center w-8 h-8 bg-yellow-500 rounded-full text-white"><AiOutlineCreditCard size={18}/></div>;
@@ -88,6 +88,7 @@ const History = () => {
                 .then((data) => {
                     if (data.success) {
                         setTransactions(data.transactions);
+                        console.log(data);
                     } else {
                         setError('Failed to load data');
                     }
@@ -216,13 +217,7 @@ const History = () => {
                                             </td>
 
                                             {/* Apply conditional styling for Amount */}
-                                            <td className={`px-4 py-2 ${item.amount > 0 
-                                                ? item.type === 'Debt' 
-                                                    ? 'text-yellow-500' 
-                                                    : 'text-green-500' 
-                                                : item.type === 'Debt' 
-                                                    ? 'text-green-500' 
-                                                    : 'text-red-500'} text-sm`}>
+                                            <td className={`px-4 py-2 ${item.type === 'Saving' && item.category === 'out' ? 'text-red-500' : item.type === 'Expense' ? 'text-red-500' : 'text-green-500'} text-sm`}>
                                                 {item.type === 'income' ? '+' : ''}
                                                 {item.formattedAmount}  {/* Display formatted amount */}
                                             </td>
