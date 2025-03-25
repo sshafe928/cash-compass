@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getForms } = require('../controllers/formsController');
+const { getForms, createIncome, createExpense, moveDebt, moveGoals, moveSavings } = require('../controllers/formsController');
 
 router.get('/', getForms);
 
@@ -8,13 +8,15 @@ router.post('/api/forms', (req, res) => {
     const { type, ...data } = req.body;
 
     if (type === 'income') {
-        // Process income data
+        createIncome
     } else if (type === 'expense') {
-        // Process expense data
+        createExpense
     } else if (type === 'savings') {
-        // Process savings data
+        moveSavings
     } else if (type === 'debt') {
-        // Process debt data
+        moveDebt
+    } else if (type === 'goals') {
+        moveGoals
     } else {
         res.status(400).send({ error: 'Invalid form type' });
     }

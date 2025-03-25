@@ -45,4 +45,24 @@ const getForms = async (req, res) => {
     }
 };
 
-module.exports = { getForms };
+const createIncome = asyncWrapper(async (req, res) => {
+
+})
+
+const createExpense = asyncWrapper(async (req, res) => {
+    
+})
+
+const moveDebt = asyncWrapper(async (req, res) => {
+    
+})
+
+const moveGoals = asyncWrapper(async (req, res) => {
+    
+})
+
+const moveSavings = asyncWrapper(async (req, res) => {
+    
+})
+
+module.exports = { getForms, createIncome, createExpense, moveDebt, moveGoals, moveSavings  };
