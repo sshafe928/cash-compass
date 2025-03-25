@@ -53,6 +53,7 @@ const Forms = () => {
             const incomeDescription = e.target["description"].value;
         
             const data =  {
+            type: 'income',
             incomeCategory,
             incomeDate,
             incomeAmount,
@@ -81,6 +82,7 @@ const Forms = () => {
             const expenseDescription = e.target["description"].value;
         
             const data =  {
+            type: 'expense',
             expenseCategory,
             expenseDate,
             expenseAmount,
@@ -103,14 +105,15 @@ const Forms = () => {
             e.preventDefault();
         
             // Collect data
-            const savingsCategory = e.target["savings-category"].value;
+            const Category = e.target["savings-category"].value;
             const savingsTransactionType = e.target["savings-transaction"].value;
             const savingsDate = e.target["savings-date"].value;
             const savingsAmount = e.target["savings-amount"].value;
             const savingsDescription = e.target["description"].value;
         
             const data =  {
-            savingsCategory,
+            type: 'savings',
+            Category,
             savingsTransactionType,
             savingsDate,
             savingsAmount,
@@ -140,6 +143,7 @@ const Forms = () => {
             const debtDescription = e.target["description"].value;
         
             const data = {
+            type: 'debt',
             debtCategory,
             debtAction,
             debtDate,
