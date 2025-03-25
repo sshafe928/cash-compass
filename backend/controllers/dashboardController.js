@@ -8,10 +8,12 @@ const savingsItems = require('../models/savingsItems');
 const getDashboard = async (req, res) => {
     try {
         // Get transaction data (combined income and expense)
+        //Add user filtering
         const expenseData = await Expense.find({
             category: { $nin: ["Saving", "Income", "Debt", "Goals", "Budget"] }
         }).sort({ date: -1 });
 
+        //Add user filtering
         const incomeData = await Income.find({
             category: { $nin: ["Saving", "Expense", "Debt", "Goals", "Budget"] }
         }).sort({ date: -1 });
@@ -28,7 +30,7 @@ const getDashboard = async (req, res) => {
             date: transaction.date.toISOString().split('T')[0],  // Format date to YYYY-MM-DD
         })).filter(transaction => transaction.category && transaction.category.trim() !== "Saving");
 
-        // Get all income and expense data separately
+        //Add user filtering
         const formattedIncome = await Income.find({ category: { $nin: ["Saving", "Expense", "Debt", "Goals", "Budget"] } })
             .then(income => income.map(transaction => ({
                 id: transaction._id.toString(),
@@ -38,6 +40,7 @@ const getDashboard = async (req, res) => {
                 date: transaction.date.toISOString().split('T')[0],
             })));
 
+        //Add user filtering
         const formattedExpense = await Expense.find({ category: { $nin: ["Saving", "Income", "Debt", "Goals", "Budget"] } })
             .then(expense => expense.map(transaction => ({
                 id: transaction._id.toString(),
@@ -48,23 +51,25 @@ const getDashboard = async (req, res) => {
             })));
 
         // Calculate total balance
+        //Add user filtering
         const totalAmount = incomeData.reduce((acc, item) => acc + item.amount, 0) - 
                             expenseData.reduce((acc, item) => acc + item.amount, 0);
         const totalAmountFormatted = totalAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
         // Calculate total savings
-        const savings = await Savings.find({ category: "Saving" });
+        const savings = await Savings.find({ category: "Saving" }); //Add user filtering
         const totalSavings = savings.reduce((acc, item) => {
             return item.where === "in" ? acc + item.amount : acc - item.amount;
         }, 0);
         const totalSavingsFormatted = totalSavings.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
         // Calculate total budget
-        const budget = await budgetItems.find({ category: "Budget" });
+        const budget = await budgetItems.find({ category: "Budget" });//Add user filtering
         const totalBudget = budget.reduce((acc, item) => acc + item.amount, 0);
         const totalBudgetFormatted = totalBudget.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
         // Fetch and format goals
+        //Add user filtering
         const goals = await savingsItems.find({ category: { $nin: ["Saving", "Expense", "Debt", "Budget", "Income"] } });
         
         const formattedGoals = goals.map(goal => ({

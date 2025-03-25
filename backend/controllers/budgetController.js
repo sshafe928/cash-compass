@@ -11,7 +11,7 @@ const getBudget = async (req, res) => {
     try {
         // Get budget items (excluding certain categories)
         const Items = await budgetItems.find({
-            category: { $nin: ["Saving", "Income", "Debt", "Goals", "Expense"] }
+            category: { $nin: ["Saving", "Income", "Debt", "Goals", "Expense"] }//Add user filtering
         });
 
         // Get the current month and year
@@ -44,6 +44,7 @@ const getBudget = async (req, res) => {
         };
 
         // Loop through the expenses and add them to the corresponding category sum
+        //Add user filtering
         expenseItems.forEach(expense => {
             const category = expense.where; // Get the category (Living, Transportation, etc.)
             const amount = expense.amount;  // Get the amount for the expense
@@ -89,7 +90,7 @@ const getBudget = async (req, res) => {
 
         // Get saving items
         const Goals = await savingItems.find({
-            category: { $nin: ["Saving", "Income", "Debt", "Budget", "Expense"] }
+            category: { $nin: ["Saving", "Income", "Debt", "Budget", "Expense"] }//Add user filtering
         });
 
         // Map to format goals
@@ -105,7 +106,7 @@ const getBudget = async (req, res) => {
 
         // Get debt items
         const Debts = await debtItems.find({
-            category: { $nin: ["Saving", "Income", "Budget", "Expense", "Goals"] }
+            category: { $nin: ["Saving", "Income", "Budget", "Expense", "Goals"] }//Add user filtering
         });
 
         // Map to format debt items

@@ -7,14 +7,14 @@ const getForms = async (req, res) => {
     try {
 
         // Calculate total savings
-        const savings = await Savings.find({ category: "Saving" });
+        const savings = await Savings.find({ category: "Saving" });//Add user filtering
         const totalSavings = savings.reduce((acc, item) => {
             return item.where === "in" ? acc + item.amount : acc - item.amount;
         }, 0);
         const totalSavingsFormatted = totalSavings.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
         // Fetch and format goals
-        const goals = await savingsItems.find({ category: { $nin: ["Saving", "Expense", "Debt", "Budget", "Income"] } });
+        const goals = await savingsItems.find({ category: { $nin: ["Saving", "Expense", "Debt", "Budget", "Income"] } });//Add user filtering
         
         const formattedGoals = goals.map(goal => ({
             id: goal._id.toString(),
@@ -24,7 +24,7 @@ const getForms = async (req, res) => {
         }));
 
         // Get debt items
-        const Items = await debtItems.find({ category: "Debt" });
+        const Items = await debtItems.find({ category: "Debt" }); //Add user filtering
         const formattedDebtItems = Items.map(item => ({
             id: item._id.toString(),
             title: item.title,
