@@ -11,8 +11,8 @@ const Signup = () => {
             {/* Form Container */}
             <div className="flex-1 p-10 flex flex-col justify-center items-center text-center">
                 <h2 className="mb-5 text-2xl text-dark-blue font-semibold uppercase">Sign Up</h2>
-                <form className="w-80" action="/user/register" method="post">
-                    <label htmlFor="name" className="block text-sm text-gray-700 font-semibold text-left mb-1">Full Name:</label>
+                <form className="w-80" action="http://localhost:5000/api/signup/register" method="post">
+                <label htmlFor="name" className="block text-sm text-gray-700 font-semibold text-left mb-1">Full Name:</label>
                     <input type="text" id="name" name="fullName" required placeholder="Enter your full name" className="w-full py-2 px-3 mb-4 border border-gray-300 rounded-full bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-200"/>
     
                     <label htmlFor="email" className="block text-sm text-gray-700 font-semibold text-left mb-1">Email:</label>

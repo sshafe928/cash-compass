@@ -57,26 +57,13 @@ const getBudget = async (req, res) => {
             }
         });
 
-        // Now, update each budget item based on the total expense for that category
         for (let item of Items) {
             const category = item.category;
+            item.spent = categorySums.hasOwnProperty(category) ? categorySums[category] : 0;
+            await item.updateOne({ $set: { spent: item.spent } });
+          }
+          
         
-            // Ensure the category sum is applied, and the 'spent' field is updated
-            if (categorySums.hasOwnProperty(category)) {
-                item.spent = categorySums[category];
-            } else {
-                item.spent = 0;
-            }
-        
-            // Ensure that you preserve the 'user' field when updating
-            const updatedItem = await item.updateOne(
-                { _id: item._id },
-                { $set: { spent: item.spent } }
-            );
-            
-            // Alternatively, if you're using save(), make sure user is not lost
-            await item.save();
-        }
 
         // Map to format budget items
         const formattedBudget = Items.map(Item => ({

@@ -337,7 +337,7 @@ const Forms = () => {
                                 {/* Savings Balance Dropdown */}
                                 <div className="flex flex-col mt-2">
                                     <label className="text-left text-md text-gray-700 font-medium" htmlFor="savings-category">Savings Category</label>
-                                    <select className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]" value={Category} onChange={(e) => setCategory(e.target.value)} required>
+                                    <select className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]" value={category} onChange={(e) => setCategory(e.target.value)} required>
                                         <option value="Student">Savings Balance - {totalSavings}</option>
                                         {/* goals dynamically displayed here */}
                                         {savingItems.map(item => (
