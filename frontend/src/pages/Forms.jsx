@@ -13,6 +13,10 @@ const Forms = () => {
     const [totalSavings, setTotalSavings] = useState(0);
     const [savingItems, setSavingItems] = useState([]);
     const [debtItems, setDebtItems] = useState([]);
+    const [category, setCategory] = useState("")
+    const [date, setDate] = useState(0)
+    const [amount, setAmount] = useState(0)
+    const [description, setDescription] = useState("")
 
     function handleOption(variable){
         if(variable){
@@ -46,18 +50,19 @@ const Forms = () => {
         const handleIncomeSubmit = (e) => {
             e.preventDefault();
         
-            // Collect data
-            const incomeCategory = e.target["income-source"].value;
-            const incomeDate = e.target["income-date"].value;
-            const incomeAmount = e.target["income-amount"].value;
-            const incomeDescription = e.target["description"].value;
+            // Collect data 
+            const where = category
+            const entryDate = date
+            const entryAmount = amount
+            const notes = description
         
             const data =  {
             type: 'income',
-            incomeCategory,
-            incomeDate,
-            incomeAmount,
-            incomeDescription,
+            category: 'Income',
+            where,
+            entryDate,
+            entryAmount,
+            notes,
             };
         
             try {
@@ -76,17 +81,18 @@ const Forms = () => {
             e.preventDefault();
         
             // Collect data
-            const expenseCategory = e.target["expense-category"].value;
-            const expenseDate = e.target["expense-date"].value;
-            const expenseAmount = e.target["expense-amount"].value;
-            const expenseDescription = e.target["description"].value;
+            const where = category
+            const entryDate = date
+            const entryAmount = amount
+            const notes = description
         
             const data =  {
             type: 'expense',
-            expenseCategory,
-            expenseDate,
-            expenseAmount,
-            expenseDescription,
+            category: 'Expense',
+            where,
+            entryDate,
+            entryAmount,
+            notes,
             };
         
             try {
@@ -105,19 +111,18 @@ const Forms = () => {
             e.preventDefault();
         
             // Collect data
-            const Category = e.target["savings-category"].value;
-            const savingsTransactionType = e.target["savings-transaction"].value;
-            const savingsDate = e.target["savings-date"].value;
-            const savingsAmount = e.target["savings-amount"].value;
-            const savingsDescription = e.target["description"].value;
+            const where = category
+            const entryDate = date
+            const entryAmount = amount
+            const notes = description
         
             const data =  {
-            type: 'savings',
-            Category,
-            savingsTransactionType,
-            savingsDate,
-            savingsAmount,
-            savingsDescription,
+            type: 'saving',
+            category: 'Saving',
+            where,
+            entryDate,
+            entryAmount,
+            notes,
             };
         
             try {
@@ -236,7 +241,7 @@ const Forms = () => {
                                 {/* Source Dropdown */}
                                 <div className="flex flex-col mt-2">
                                     <label className="text-left text-md text-gray-700 font-medium" htmlFor="income-source">Category</label>
-                                    <select className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]" required>
+                                    <select className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]" onChange={(e) => setCategory(e.target.value)} required>
                                         <option value="Employment">Employment (Salary/Bonus/Freelance)</option>
                                         <option value="Investments">Investments (Interest/Dividends)</option>
                                         <option value="Gifts">Gifts</option>
@@ -249,18 +254,18 @@ const Forms = () => {
                                 <div className="flex justify-between w-full mx-auto mt-6">
                                     <div className="flex flex-col w-3/6 mr-2">
                                         <label className="text-left text-md text-gray-700 font-medium" htmlFor="income-date">Date</label>
-                                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="date" required />
+                                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="date" onChange={(e) => setDate(e.target.value)} required />
                                     </div>
                                     <div className="flex flex-col w-3/6 ml-2">
                                         <label className="text-left text-md text-gray-700 font-medium" htmlFor="income-amount">Amount</label>
-                                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="number" placeholder="$" required />
+                                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="number" placeholder="$"  onChange={(e) => setAmount(e.target.value)} required />
                                     </div>
                                 </div>
 
                                 {/* Description Textarea */}
                                 <div className="flex flex-col mt-6">
                                     <label className="text-left text-md text-gray-700 font-medium" htmlFor="description">Description</label>
-                                    <textarea className="p-2 border border-gray-300 rounded-md text-gray-900 w-full h-[150px] resize-none focus:outline-none focus:ring-1 focus:ring-[#284b74]" name="description" id="description" placeholder="Description..." required></textarea>
+                                    <textarea className="p-2 border border-gray-300 rounded-md text-gray-900 w-full h-[150px] resize-none focus:outline-none focus:ring-1 focus:ring-[#284b74]" name="description" id="description" placeholder="Description..." onChange={(e) => setDescription(e.target.value)} required></textarea>
                                 </div>
 
                                 {/* Submit Button */}
@@ -282,7 +287,7 @@ const Forms = () => {
                                 {/* Category Dropdown */}
                                 <div className="flex flex-col mt-2">
                                     <label className="text-left text-md text-gray-700 font-medium" htmlFor="expense-category">Category</label>
-                                    <select className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]" required>
+                                    <select className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]"  onChange={(e) => setCategory(e.target.value)} required>
                                         <option value="Living">Living (Rent/Utilities/Insurance)</option>
                                         <option value="Transportation">Transportation</option>
                                         <option value="Healthcare">Healthcare</option>
@@ -299,18 +304,18 @@ const Forms = () => {
                                 <div className="flex justify-between w-full mx-auto mt-6">
                                     <div className="flex flex-col w-3/6 mr-2">
                                         <label className="text-left text-md text-gray-700 font-medium" htmlFor="expense-date">Date</label>
-                                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="date" required />
+                                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="date" onChange={(e) => setDate(e.target.value)} required />
                                     </div>
                                     <div className="flex flex-col w-3/6 ml-2">
                                         <label className="text-left text-md text-gray-700 font-medium" htmlFor="expense-amount">Amount</label>
-                                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="number" placeholder="$" required />
+                                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="number" placeholder="$" onChange={(e) => setAmount(e.target.value)} required />
                                     </div>
                                 </div>
 
                                 {/* Description Textarea */}
                                 <div className="flex flex-col mt-6">
                                     <label className="text-left text-md text-gray-700 font-medium" htmlFor="description">Description</label>
-                                    <textarea className="p-2 border border-gray-300 rounded-md text-gray-900 w-full h-[150px] resize-none focus:outline-none focus:ring-1 focus:ring-[#284b74]" name="description" id="description" placeholder="Description..." required></textarea>
+                                    <textarea className="p-2 border border-gray-300 rounded-md text-gray-900 w-full h-[150px] resize-none focus:outline-none focus:ring-1 focus:ring-[#284b74]" name="description" id="description" placeholder="Description..."  onChange={(e) => setDescription(e.target.value)} required></textarea>
                                 </div>
 
                                 {/* Submit Button */}
@@ -332,7 +337,7 @@ const Forms = () => {
                                 {/* Savings Balance Dropdown */}
                                 <div className="flex flex-col mt-2">
                                     <label className="text-left text-md text-gray-700 font-medium" htmlFor="savings-category">Savings Category</label>
-                                    <select className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]" required>
+                                    <select className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]" value={Category} onChange={(e) => setCategory(e.target.value)} required>
                                         <option value="Student">Savings Balance - {totalSavings}</option>
                                         {/* goals dynamically displayed here */}
                                         {savingItems.map(item => (
@@ -354,18 +359,18 @@ const Forms = () => {
                                 <div className="flex justify-between w-full mx-auto mt-6">
                                     <div className="flex flex-col w-3/6 mr-2">
                                         <label className="text-left text-md text-gray-700 font-medium" htmlFor="savings-date">Date</label>
-                                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="date" required />
+                                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="date" onChange={(e) => setDate(e.target.value)} required />
                                     </div>
                                     <div className="flex flex-col w-3/6 ml-2">
                                         <label className="text-left text-md text-gray-700 font-medium" htmlFor="savings-amount">Amount</label>
-                                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="number" placeholder="$" required />
+                                        <input className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" type="number" placeholder="$"  onChange={(e) => setAmount(e.target.value)} required />
                                     </div>
                                 </div>
 
                                 {/* Description Textarea */}
                                 <div className="flex flex-col mt-6">
                                     <label className="text-left text-md text-gray-700 font-medium" htmlFor="description">Description</label>
-                                    <textarea className="p-2 border border-gray-300 rounded-md text-gray-900 w-full h-[150px] resize-none focus:outline-none focus:ring-1 focus:ring-[#284b74]" name="description" id="description" placeholder="Description..." required></textarea>
+                                    <textarea className="p-2 border border-gray-300 rounded-md text-gray-900 w-full h-[150px] resize-none focus:outline-none focus:ring-1 focus:ring-[#284b74]" name="description" id="description" placeholder="Description..." onChange={(e) => setDescription(e.target.value)} required></textarea>
                                 </div>
 
                                 {/* Submit Button */}

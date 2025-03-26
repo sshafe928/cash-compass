@@ -5,22 +5,36 @@ const { getForms, createIncome, createExpense, moveDebt, moveGoals, moveSavings 
 router.get('/', getForms);
 
 router.post('/api/forms', (req, res) => {
-    const { type, ...data } = req.body;
+    const { type, data } = req.body;
 
     if (type === 'income') {
-        createIncome
+        createIncome(data) 
+            .then(response => res.status(200).send(response)) 
+            .catch(error => res.status(500).send({ error: error.message })); 
+
     } else if (type === 'expense') {
-        createExpense
+        createExpense(data)
+            .then(response => res.status(200).send(response))
+            .catch(error => res.status(500).send({ error: error.message }));
+
     } else if (type === 'savings') {
-        moveSavings
+        moveSavings(data)
+            .then(response => res.status(200).send(response))
+            .catch(error => res.status(500).send({ error: error.message }));
+
     } else if (type === 'debt') {
-        moveDebt
+        moveDebt(data)
+            .then(response => res.status(200).send(response))
+            .catch(error => res.status(500).send({ error: error.message }));
+
     } else if (type === 'goals') {
-        moveGoals
+        moveGoals(data)
+            .then(response => res.status(200).send(response))
+            .catch(error => res.status(500).send({ error: error.message }));
+
     } else {
         res.status(400).send({ error: 'Invalid form type' });
     }
 });
-
 
 module.exports = router;

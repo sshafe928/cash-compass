@@ -46,23 +46,67 @@ const getForms = async (req, res) => {
 };
 
 const createIncome = asyncWrapper(async (req, res) => {
+    const data = { data } = req.body;
+    const user = "user123"; //replace with session user
+    
+    Income_entry.create({category: data.category, amount: data.amount,  where: data.where, user: user, date: data.date, notes:data.notes})
 
+
+    try {
+
+        const result = await saveIncome(data); 
+        res.status(200).json(result);  
+    } catch (error) {
+        res.status(500).json({ error: 'Error creating income: ' + error.message });
+    }
 })
 
 const createExpense = asyncWrapper(async (req, res) => {
-    
+    const { type, ...data } = req.body;
+
+    try {
+
+        const result = await saveIncome(data); 
+        res.status(200).json(result);  
+    } catch (error) {
+        res.status(500).json({ error: 'Error creating income: ' + error.message });
+    }   
 })
 
 const moveDebt = asyncWrapper(async (req, res) => {
-    
+    const { type, ...data } = req.body;
+
+    try {
+
+        const result = await saveIncome(data); 
+        res.status(200).json(result);  
+    } catch (error) {
+        res.status(500).json({ error: 'Error creating income: ' + error.message });
+    }
 })
 
 const moveGoals = asyncWrapper(async (req, res) => {
-    
+    const { type, ...data } = req.body;
+
+    try {
+
+        const result = await saveIncome(data); 
+        res.status(200).json(result);  
+    } catch (error) {
+        res.status(500).json({ error: 'Error creating income: ' + error.message });
+    }
 })
 
 const moveSavings = asyncWrapper(async (req, res) => {
-    
+    const { type, ...data } = req.body;
+
+    try {
+
+        const result = await saveIncome(data); 
+        res.status(200).json(result);  
+    } catch (error) {
+        res.status(500).json({ error: 'Error creating income: ' + error.message });
+    }
 })
 
 module.exports = { getForms, createIncome, createExpense, moveDebt, moveGoals, moveSavings  };
