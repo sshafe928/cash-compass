@@ -43,7 +43,6 @@ const getBudget = async (req, res) => {
             Other: 0
         };
 
-        // Loop through the expenses and add them to the corresponding category sum
         //Add user filtering
         expenseItems.forEach(expense => {
             const category = expense.where; // Get the category (Living, Transportation, etc.)
@@ -61,8 +60,8 @@ const getBudget = async (req, res) => {
             const category = item.category;
             item.spent = categorySums.hasOwnProperty(category) ? categorySums[category] : 0;
             await item.updateOne({ $set: { spent: item.spent } });
-          }
-          
+        }
+        
         
 
         // Map to format budget items

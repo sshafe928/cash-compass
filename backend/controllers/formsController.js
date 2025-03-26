@@ -49,25 +49,25 @@ const createIncome = asyncWrapper(async (req, res) => {
     const data = { data } = req.body;
     const user = "user123"; //replace with session user
     
-    Income_entry.create({category: data.category, amount: data.amount,  where: data.where, user: user, date: data.date, notes:data.notes})
+    
 
 
     try {
-
-        const result = await saveIncome(data); 
-        res.status(200).json(result);  
+        Income_entry.create({category: data.category, amount: data.entryAmount,  where: data.where, user: user, date: data.entryDate, notes:data.notes})
+        res.status(200)  
     } catch (error) {
         res.status(500).json({ error: 'Error creating income: ' + error.message });
     }
 })
 
 const createExpense = asyncWrapper(async (req, res) => {
-    const { type, ...data } = req.body;
+    const { data } = req.body;
+    const user = "user123";
 
     try {
 
-        const result = await saveIncome(data); 
-        res.status(200).json(result);  
+        Expense_entry.create({category: data.category, amount: data.entryAmount,  where: data.where, user: user, date: data.entryDate, notes:data.notes})
+        res.status(200)
     } catch (error) {
         res.status(500).json({ error: 'Error creating income: ' + error.message });
     }   

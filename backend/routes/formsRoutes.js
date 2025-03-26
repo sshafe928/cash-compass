@@ -18,9 +18,15 @@ router.post('/api/forms', (req, res) => {
             .catch(error => res.status(500).send({ error: error.message }));
 
     } else if (type === 'savings') {
-        moveSavings(data)
+        if (data.category === "Goals"){
+            moveGoals(data)
             .then(response => res.status(200).send(response))
             .catch(error => res.status(500).send({ error: error.message }));
+        }else{
+            moveSavings(data)
+            .then(response => res.status(200).send(response))
+            .catch(error => res.status(500).send({ error: error.message }))
+        }
 
     } else if (type === 'debt') {
         moveDebt(data)

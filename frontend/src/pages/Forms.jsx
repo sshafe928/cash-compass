@@ -17,6 +17,7 @@ const Forms = () => {
     const [date, setDate] = useState(0)
     const [amount, setAmount] = useState(0)
     const [description, setDescription] = useState("")
+    const [transaction, setTransaction] = useState('')
 
     function handleOption(variable){
         if(variable){
@@ -109,43 +110,53 @@ const Forms = () => {
 
         const handleSavingsSubmit = (e) => {
             e.preventDefault();
-        
+            
             // Collect data
-            const where = category
-            const entryDate = date
-            const entryAmount = amount
-            const notes = description
+            const where = transaction;
+            const entryDate = date;
+            let entryAmount = amount; 
+            const notes = description;
         
-            const data =  {
-            type: 'saving',
-            category: 'Saving',
-            where,
-            entryDate,
-            entryAmount,
-            notes,
+            if (where === "out") {
+                entryAmount = -Math.abs(entryAmount); 
+            }
+        
+            // Determine category and data to send
+            let category;
+            if (category === "Savings") {
+                category = 'Saving';
+            } else {
+                category = 'Goals';
+            }
+        
+            // Create the data object
+            const data = {
+                type: 'savings', 
+                category,
+                where,
+                entryDate,
+                entryAmount,
+                notes,
             };
         
             try {
                 // Send POST request to backend API
-                const response = axios.post("/api/forms", data);
-            
-                // Handle successful response (you can also display a success message here)
-                console.log("Income submitted successfully:", response.data);
+                const response =  axios.post("/api/forms", data); 
+        
+                // Handle successful response
+                console.log("Data submitted successfully:", response.data);
             } catch (error) {
-                // Handle error (you can display an error message here)
-                console.error("There was an error submitting the income:", error);
+                // Handle error
+                console.error("There was an error submitting the data:", error);
             }
         };
+        
 
         const handleDebtSubmit = (e) => {
             e.preventDefault();
         
             // Collect data
-            const debtCategory = e.target["debt-type"].value;
-            const debtAction = e.target["debt-action"].value;
-            const debtDate = e.target["debt-date"].value;
-            const debtAmount = e.target["debt-amount"].value;
-            const debtDescription = e.target["description"].value;
+            
         
             const data = {
             type: 'debt',
@@ -349,7 +360,7 @@ const Forms = () => {
                                 {/* Transaction Type Dropdown */}
                                 <div className="flex flex-col mt-6">
                                     <label className="text-left text-md text-gray-700 font-medium" htmlFor="savings-transaction">Transaction Type</label>
-                                    <select className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]" required>
+                                    <select className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]" onChange={(e) => setTransaction(e.target.value)} required>
                                         <option value="In">Into Savings/Goal</option>
                                         <option value="Out">Out of Savings/Goal</option>
                                     </select>
