@@ -63,11 +63,11 @@ const About = () => {
         <div className="flex flex-col text-center gap-6 mt-10">
           <div className="flex flex-col md:flex-row items-center justify-center">
             <img className="w-[200px] md:w-[150px]" src={compassLogo} alt="logo" />
-            <h1 className="text-[50px] text-white font-semibold relative inline-block after:block after:w-0 after:h-1 after:bg-white after:transition-all after:duration-500 hover:after:w-full">
+            <h1 className="text-[50px] md:text-[70px] text-white my-4 md:my-8 font-semibold relative inline-block after:block after:w-0 after:h-1 after:bg-white after:transition-all after:duration-500 hover:after:w-full">
               Cash Compass
             </h1>
           </div>
-          <p className="text-lg text-white max-w-[650px] mx-auto px-6 bg-dark-blue">
+          <p className="text-lg md:text-xl text-white max-w-[650px] mx-auto px-6 bg-dark-blue leading-relaxed md:leading-loose md:pb-10">
             Take control of your finances with <span className="font-bold">Cash Compass</span>.
             Track your spending, set budgets, and gain insights into your financial health—all in one place.
             Start your journey towards smarter money management today!
@@ -88,7 +88,7 @@ const About = () => {
       </div>
 
       {/* WELCOME AND INTRO */}
-      <div className="flex flex-col gap-8 justify-center mx-auto w-[90%] sm:w-[80%] mt-80 sm:mt-72 md:mt-24">
+      <div className="flex flex-col gap-8 justify-center mx-auto w-[90%] sm:w-[80%] mt-96 sm:mt-80 md:mt-60">
         <div className="flex flex-col gap-4 text-center md:text-start">
           <p className="text-3xl text-dark-blue font-semibold">Welcome To Your Financial Tracker!</p>
           <p className="text-xl text-gray-900">Get started with us and make an account or login.</p>
@@ -106,7 +106,7 @@ const About = () => {
               </button>
             </Link>
           </div>
-          <p className="text-md lg:text-lg text-gray-900 py-6 md:border-l border-dark-blue px-4 sm:px-10">
+          <p className="text-lg text-gray-900 py-6 md:border-l border-dark-blue px-4 sm:px-10">
             <span className="font-semibold text-dark-blue">Cash Compass</span> is a simple financial tool designed to help students manage their money with ease. It lets you track income, expenses, and spending patterns while providing clear summaries and customizable categories. With features like search, filters, and easy updates, <span className="font-semibold text-dark-blue">Cash Compass</span> makes budgeting effortless and empowers better financial decisions.
           </p>
         </div>
@@ -116,26 +116,26 @@ const About = () => {
       <div className="flex gap-6 flex-col md:flex-row items-center w-[90%] sm:w-[80%] mx-auto my-14">
         <img className="rounded-lg shadow-md w-full max-w-[400px] md:max-w-[300px] lg:max-w-[400px] object-cover" src={about5} alt="Money Savings" />
         <div className="flex flex-col gap-4">
-          <h1 className="text-dark-blue font-semibold text-lg lg:text-2xl">Our Story:</h1>
-          <p className="text-sm xl:text-base 2xl:text-lg">
+          <h1 className="text-dark-blue font-semibold text-2xl lg:text-2xl">Our Story:</h1>
+          <p className="text-lg md:text-base">
             <span className="font-semibold text-dark-blue">CashCompass</span> was created by a group of students who found themselves constantly frustrated with keeping track of their finances. Between class schedules, part-time jobs, and the general hustle of student life, they realized that there wasn't a tool that made managing finances both simple and effective. So, they set out to build one. After brainstorming, coding, and a lot of trial and error, <span className="font-semibold text-dark-blue">CashCompass</span> was born—designed to help students efficiently track their spending, income, and savings goals. Now, thousands of students use <span className="font-semibold text-dark-blue">CashCompass</span> to gain clarity and confidence in their financial decisions.
           </p>
         </div>
       </div>
 
       {/* ICONS */}
-      <div className="flex flex-col gap-6 mx-auto">
-        <h1 className="text-dark-blue font-semibold text-3xl text-center px-4">We help students save and plan for the future</h1>
+      <div className="flex flex-col gap-16 mx-auto my-12 bg-dark-blue w-[90%] sm:w-[80%] rounded-xl pt-16 pb-24">
+        <h1 className="text-white font-semibold text-4xl text-center px-4">We help students save and plan for the future</h1>
         <div className="text-center px-4">
-          <h2 className="text-xl font-semibold text-dark-blue">Smart Budgeting Tips for Students</h2>
-          <p className="mt-4 text-lg max-w-3xl mx-auto">
+          <h2 className="text-2xl font-semibold text-white">Smart Budgeting Tips for Students</h2>
+          <p className="mt-4 text-xl max-w-3xl mx-auto text-white">
             Managing your finances as a student can be challenging, but setting a budget and tracking your expenses can make a huge difference. Start by categorizing your spending, setting saving goals, and cutting unnecessary expenses. Small changes, like making coffee at home instead of buying it daily, can add up over time!
           </p>
         </div>
         <div className="flex gap-4 justify-evenly">
-          <img className="max-w-[100px] max-h-[100px]" src={image18} alt="money icon" />
-          <img className="max-w-[100px] max-h-[100px]" src={image17} alt="building icon" />
-          <img className="max-w-[100px] max-h-[100px]" src={image19} alt="magnify icon" />
+          <img className="max-w-[90px] max-h-[90px] md:max-w-[150px] md:max-h-[150px]" src={image18} alt="money icon" />
+          <img className="max-w-[90px] max-h-[90px] md:max-w-[150px] md:max-h-[150px]" src={image17} alt="building icon" />
+          <img className="max-w-[90px] max-h-[90px] md:max-w-[150px] md:max-h-[150px]" src={image19} alt="magnify icon" />
         </div>
       </div>
 
