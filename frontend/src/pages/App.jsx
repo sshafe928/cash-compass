@@ -1,16 +1,37 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// imports for charts/bar
+// Imports for charts/bar
 import { Bar } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
-// up down arrow icons
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+} from "chart.js";
+// Up/down arrow icons
 import { AiOutlineArrowUp, AiOutlineArrowDown } from "react-icons/ai";
-// icons for categories
-import { FaBriefcase, FaHome, FaShoppingBasket, FaChartLine, FaCar, FaHeartbeat, FaFilm, FaGift, FaBook, FaUtensils, FaEllipsisH, FaLandmark } from "react-icons/fa";
-// target icon import
+// Icons for categories
+import {
+  FaBriefcase,
+  FaHome,
+  FaShoppingBasket,
+  FaChartLine,
+  FaCar,
+  FaHeartbeat,
+  FaFilm,
+  FaGift,
+  FaBook,
+  FaUtensils,
+  FaEllipsisH,
+  FaLandmark
+} from "react-icons/fa";
+// Target icon import
 import { TbTargetArrow } from "react-icons/tb";
 import compassLogo from "../assets/images/compassLogo.png";
-// left and right arrows
+// Left and right arrows
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -18,22 +39,31 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  // State for user and other dashboard data
+  // User and dashboard states
   const [user, setUser] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("expenseIncome");
   const [transactions, setTransactions] = useState([]);
   const [incomes, setIncome] = useState([]);
   const [expenses, setExpense] = useState([]);
-  const [error, setError] = useState(null);
   const [savings, setSavings] = useState(0);
   const [totalBudget, setTotalBudget] = useState(0);
   const [displayedGoal, setDisplayedGoal] = useState({});
 
-  // New state for dynamic chart data
+  // Chart data states
   const [chartIncome, setChartIncome] = useState(Array(12).fill(0));
   const [chartExpense, setChartExpense] = useState(Array(12).fill(0));
   const [chartDebt, setChartDebt] = useState(Array(12).fill(0));
+
+  // Time filter states
+  const [timeFilter, setTimeFilter] = useState("12_months");
+  const [customChartData, setCustomChartData] = useState(null);
+
+  // Other dashboard state
+  const [selectedOption, setSelectedOption] = useState("expenseIncome");
+  const [error, setError] = useState(null);
+
+  // MISSING SIDEBAR STATE: Add isOpen state and toggleSidebar handler
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleSidebar = () => setIsOpen(!isOpen);
 
   // On mount, check for logged-in user; if not, redirect to About page
   useEffect(() => {
@@ -45,14 +75,13 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
-  // Logout handler: clear localStorage and redirect to About page
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     navigate("/about");
   };
 
-  // Build chart data using dynamic values
+  // Default 12-month chart data
   const chartData = {
     labels: [
       "January", "February", "March", "April", "May", "June",
@@ -100,12 +129,9 @@ const Dashboard = () => {
     }
   };
 
-  // Handle dropdown change
-  const handleChange = (event) => setSelectedOption(event.target.value);
   const chartDataActive = selectedOption === "expenseIncome" ? chartData : debtData;
-  const toggleSidebar = () => setIsOpen(!isOpen);
 
-  // Fetch dashboard data from the backend
+  // Fetch dashboard data from backend
   useEffect(() => {
     fetch("http://localhost:5000/api/dashboard", {
       headers: {
@@ -122,7 +148,6 @@ const Dashboard = () => {
           setSavings(data.totalSavings);
           setTotalBudget(data.totalBudget);
           setDisplayedGoal(data.displayedGoal);
-          // Set dynamic chart data from backend
           setChartIncome(data.chartIncome);
           setChartExpense(data.chartExpense);
           setChartDebt(data.chartDebt);
@@ -136,6 +161,98 @@ const Dashboard = () => {
       });
   }, []);
 
+  // Recompute custom chart data when timeFilter or chart data changes
+  useEffect(() => {
+    if (timeFilter === "12_months") {
+      const labels = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      setCustomChartData({
+        labels,
+        datasets: [
+          {
+            label: "Income",
+            data: chartIncome,
+            backgroundColor: "rgba(54, 162, 235, 0.6)"
+          },
+          {
+            label: "Expenses",
+            data: chartExpense,
+            backgroundColor: "rgba(255, 99, 132, 0.6)"
+          }
+        ]
+      });
+    } else if (timeFilter === "6_months") {
+      let earliestMonth = 13;
+      const allData = [...incomes, ...expenses];
+      allData.forEach(item => {
+        const m = new Date(item.date).getMonth() + 1;
+        if (m < earliestMonth) earliestMonth = m;
+      });
+      if (earliestMonth === 13) earliestMonth = 1;
+      const allLabels = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      const labels = allLabels.slice(earliestMonth - 1, earliestMonth - 1 + 6);
+      const slicedIncome = chartIncome.slice(earliestMonth - 1, earliestMonth - 1 + 6);
+      const slicedExpense = chartExpense.slice(earliestMonth - 1, earliestMonth - 1 + 6);
+      setCustomChartData({
+        labels,
+        datasets: [
+          {
+            label: "Income",
+            data: slicedIncome,
+            backgroundColor: "rgba(54, 162, 235, 0.6)"
+          },
+          {
+            label: "Expenses",
+            data: slicedExpense,
+            backgroundColor: "rgba(255, 99, 132, 0.6)"
+          }
+        ]
+      });
+    } else if (timeFilter === "1_month") {
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const currentMonth = currentDate.getMonth() + 1;
+      const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+      const dailyIncome = Array(daysInMonth).fill(0);
+      const dailyExpense = Array(daysInMonth).fill(0);
+      transactions.forEach(t => {
+        const [year, month, day] = t.date.split("-").map(Number);
+        if (year === currentYear && month === currentMonth) {
+          const amt = parseFloat(t.amount.replace(/[$,]/g, ""));
+          if (t.type === "income") {
+            dailyIncome[day - 1] += amt;
+          } else {
+            dailyExpense[day - 1] += amt;
+          }
+        }
+      });
+      const labels = Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
+      setCustomChartData({
+        labels,
+        datasets: [
+          {
+            label: "Income",
+            data: dailyIncome,
+            backgroundColor: "rgba(54, 162, 235, 0.6)"
+          },
+          {
+            label: "Expenses",
+            data: dailyExpense,
+            backgroundColor: "rgba(255, 99, 132, 0.6)"
+          }
+        ]
+      });
+    }
+  }, [timeFilter, incomes, expenses, chartIncome, chartExpense, transactions]);
+
+  const finalChartData = customChartData || chartDataActive;
+
+  // Helper for category icons
   const getCategoryIcon = (category) => {
     switch (category.toLowerCase()) {
       case "employment":
@@ -165,7 +282,7 @@ const Dashboard = () => {
     }
   };
 
-  // Pagination for expense/income groups
+  // Pagination states for expense/income groups
   const [expensePage, setExpensePage] = useState(0);
   const [incomePage, setIncomePage] = useState(0);
   const itemsPerPage = 3;
@@ -203,7 +320,6 @@ const Dashboard = () => {
   const nextIncomePage = () => setIncomePage((prev) => (prev + 1) % incomePageCount);
   const prevIncomePage = () => setIncomePage((prev) => (prev - 1 + incomePageCount) % incomePageCount);
 
-  // Total Balance comes from the logged-in user's userMoney field.
   const formattedBalance = user
     ? Number(user.userMoney).toLocaleString("en-US", {
         style: "currency",
@@ -211,7 +327,6 @@ const Dashboard = () => {
       })
     : "$0.00";
 
-  // Total Savings and Total Budget come from backend calculations.
   const formattedSavings = savings;
   const formattedBudget = totalBudget;
   const progress = (displayedGoal.currentAmount / displayedGoal.goalAmount) * 100 || 0;
@@ -270,9 +385,7 @@ const Dashboard = () => {
       <div className="flex-1 p-4 w-4/5 transition-all duration-300 ease-in-out min-h-[100vh]">
         <div className="flex justify-between border-b border-[#284b74] pb-5">
           <div className="flex items-center">
-            <button className="lg:hidden p-2 text-black text-3xl md:text-4xl mr-3" onClick={toggleSidebar}>
-              ☰
-            </button>
+            <button className="lg:hidden p-2 text-black text-3xl md:text-4xl mr-3" onClick={toggleSidebar}>☰</button>
             <h1 className="text-dark-blue text-xl md:text-3xl">Dashboard</h1>
           </div>
           <div className="flex items-center">
@@ -324,16 +437,17 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-              <select value={selectedOption} onChange={handleChange} className="mb-4 p-2 border rounded">
-                <option value="expenseIncome">Expense & Income</option>
-                <option value="debt">Debt</option>
-              </select>
-              <select className="mb-4 p-2 border rounded float-right">
+              {/* Time Filter Select */}
+              <select 
+                value={timeFilter}
+                onChange={(e) => setTimeFilter(e.target.value)}
+                className="mb-4 p-2 border rounded float-right"
+              >
                 <option value="1_month">1 Month</option>
                 <option value="6_months">6 Months</option>
                 <option value="12_months">12 Months</option>
               </select>
-              <Bar data={chartDataActive} options={chartOptions} />
+              <Bar data={finalChartData} options={chartOptions} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Spending Overview Section */}

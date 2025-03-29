@@ -8,31 +8,35 @@ const debtItems = require('../models/debtItems'); // Make sure this model exists
 
 // Helper to aggregate monthly totals for a given model and field
 const getMonthlyTotals = async (Model, userId, field = "amount") => {
-  const currentYear = new Date().getFullYear();
-  const results = await Model.aggregate([
-    {
-      $match: {
-        user: userId,
-        date: {
-          $gte: new Date(currentYear, 0, 1),
-          $lt: new Date(currentYear + 1, 0, 1)
+    const currentYear = new Date().getFullYear();
+    // Use the model’s name to filter documents
+    const expectedCategory = Model.modelName; // "Income", "Expense", or "Debt"
+    const results = await Model.aggregate([
+      {
+        $match: {
+          user: userId,
+          category: expectedCategory,
+          date: {
+            $gte: new Date(currentYear, 0, 1),
+            $lt: new Date(currentYear + 1, 0, 1)
+          }
         }
-      }
-    },
-    {
-      $group: {
-        _id: { $month: "$date" },
-        total: { $sum: `$${field}` }
-      }
-    },
-    { $sort: { "_id": 1 } }
-  ]);
-  const totals = Array(12).fill(0);
-  results.forEach(item => {
-    totals[item._id - 1] = item.total;
-  });
-  return totals;
-};
+      },
+      {
+        $group: {
+          _id: { $month: "$date" },
+          total: { $sum: `$${field}` }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    const totals = Array(12).fill(0);
+    results.forEach(item => {
+      totals[item._id - 1] = item.total;
+    });
+    return totals;
+  };
+  
 
 const getDashboard = async (req, res) => {
   try {

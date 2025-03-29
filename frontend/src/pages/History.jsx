@@ -16,60 +16,59 @@ const History = () => {
 
   // Filter states
   const [dateRange, setDateRange] = useState("1_week"); // "1_week", "1_month", "6_months", "12_months"
-  const [specificDate, setSpecificDate] = useState(""); // for the date input (optional)
-  const [typeFilter, setTypeFilter] = useState(""); // "income", "expense", "saving", "debt"
-  const [categoryList, setCategoryList] = useState([]); // list of categories based on type
-  const [categoryFilter, setCategoryFilter] = useState(""); // selected category value
-  const [amountRange, setAmountRange] = useState(""); // e.g., "50_99", "100_299", etc.
+  const [specificDate, setSpecificDate] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [categoryList, setCategoryList] = useState([]);
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [amountRange, setAmountRange] = useState("");
   const [searchText, setSearchText] = useState("");
   
   // Filtered transactions (derived from transactions + filter states)
   const [filteredTransactions, setFilteredTransactions] = useState([]);
 
-  // Pre-defined categories for each type
+  // Pre-defined categories (using short, lowercase values) for each type
   const incomeCategories = [
-    "Employment (Salary/Bonus/Freelance)",
-    "Investments (Interest/Dividends)",
-    "Gifts",
-    "Government (Benefits/Assistance)",
-    "Other"
+    "employment",
+    "investments",
+    "gifts",
+    "government",
+    "other"
   ];
   const expenseCategories = [
-    "Living (Rent/Utilities/Insurance)",
-    "Transportation",
-    "Healthcare",
-    "Groceries",
-    "Restaurant & Dining",
-    "Entertainment",
-    "Education",
-    "Gifts",
-    "Other"
+    "living",
+    "transportation",
+    "healthcare",
+    "groceries",
+    "restaurant",
+    "entertainment",
+    "education",
+    "gifts",
+    "other"
   ];
   const debtCategories = [
-    "Student Loans",
-    "Credit Card Debt",
-    "Mortgage",
-    "Personal",
-    "Auto Loans",
-    "Medical Debt",
-    "Business Loans",
-    "Tax Debt"
+    "student loans",
+    "credit card debt",
+    "mortgage",
+    "personal",
+    "auto loans",
+    "medical debt",
+    "business loans",
+    "tax debt"
   ];
   const savingCategories = [
-    "Savings Balance",
-    "Goals"
+    "savings",
+    "goals"
   ];
 
   // Toggle sidebar
   const toggleSidebar = () => setIsOpen(!isOpen);
 
-  // On mount, load user from localStorage and fetch transaction data
+  // On mount, load user and fetch transactions
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    // Fetch transactions from backend (include token if needed)
     fetch("http://localhost:5000/api/history", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -89,7 +88,7 @@ const History = () => {
       });
   }, []);
 
-  // When any filter changes or transactions change, update the filtered list.
+  // When any filter changes or transactions change, update filteredTransactions.
   useEffect(() => {
     const now = new Date();
     let cutoff;
@@ -105,20 +104,16 @@ const History = () => {
 
     const filtered = transactions.filter((txn) => {
       const txnDate = new Date(txn.date);
-      // Date range filter
       if (cutoff && txnDate < cutoff) return false;
-      // Specific date filter (if set)
       if (specificDate && txn.date !== specificDate) return false;
-      // Type filter
+      // Type filter: compare lowercased values
       if (typeFilter && txn.type.toLowerCase() !== typeFilter.toLowerCase()) return false;
-      // Category filter
+      // Category filter: compare lowercased values
       if (categoryFilter && txn.category.toLowerCase() !== categoryFilter.toLowerCase()) return false;
-      // Amount range filter
       if (amountRange) {
         const [min, max] = amountRange.split("_").map(Number);
         if (txn.amount < min || txn.amount > max) return false;
       }
-      // Search text filter (search in description, category, or type)
       if (searchText) {
         const lowerSearch = searchText.toLowerCase();
         if (
@@ -134,7 +129,7 @@ const History = () => {
     setFilteredTransactions(filtered);
   }, [transactions, dateRange, specificDate, typeFilter, categoryFilter, amountRange, searchText]);
 
-  // When type filter changes, update the category list accordingly
+  // When type filter changes, update category list accordingly
   const handleTypeChange = (value) => {
     setTypeFilter(value);
     if (value === "income") {
@@ -148,8 +143,18 @@ const History = () => {
     } else {
       setCategoryList([]);
     }
-    // Reset the selected category when type changes
     setCategoryFilter("");
+  };
+
+  // Reset filters
+  const resetFilters = () => {
+    setDateRange("1_week");
+    setSpecificDate("");
+    setTypeFilter("");
+    setCategoryList([]);
+    setCategoryFilter("");
+    setAmountRange("");
+    setSearchText("");
   };
 
   // Type icons
@@ -239,9 +244,9 @@ const History = () => {
                 </a>
               </li>
               <li>
-                <a href="/" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">
+                <button onClick={() => {}} className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">
                   Logout
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -317,7 +322,7 @@ const History = () => {
                       Category
                     </option>
                     {categoryList.map((item) => (
-                      <option key={item} value={item.toLowerCase()}>
+                      <option key={item} value={item}>
                         {item}
                       </option>
                     ))}
@@ -351,7 +356,7 @@ const History = () => {
                   </button>
                   <input
                     type="text"
-                    className={`h-10 border border-dark-blue text-dark-blue font-semibold text-sm px-4 pr-12 rounded-lg transition-all duration-500 ease-in-out bg-white placeholder-gray-700`}
+                    className="h-10 border border-dark-blue text-dark-blue font-semibold text-sm px-4 pr-12 rounded-lg transition-all duration-500 ease-in-out bg-white placeholder-gray-700"
                     placeholder="Type to Search..."
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
@@ -359,8 +364,11 @@ const History = () => {
                 </div>
               </div>
               <div className="flex rounded-lg border border-dark-blue shadow-md overflow-hidden h-10">
-                <button className="bg-white text-dark-blue w-24 font-semibold hover:bg-gray-200">
-                  Search
+                <button
+                  className="bg-white text-dark-blue w-24 font-semibold hover:bg-gray-200"
+                  onClick={resetFilters}
+                >
+                  Reset
                 </button>
               </div>
             </div>
