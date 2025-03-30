@@ -134,7 +134,7 @@ const moveSavings = asyncWrapper(async (req, res) => {
     });
     return res.status(200).json({ success: true, saving });
   } else if (data.category === "Goals") {
-    // Update an existing goal: use data.where as the goal title
+    // Update the existing goal using data.where as the goal title
     const goal = await Goals.findOneAndUpdate(
       { title: data.where, user: user },
       { $inc: { currentAmount: data.entryAmount } },
@@ -143,10 +143,19 @@ const moveSavings = asyncWrapper(async (req, res) => {
     if (!goal) {
       return res.status(404).json({ error: "Goal not found" });
     }
-    return res.status(200).json({ success: true, goal });
-  } else {
-    return res.status(400).json({ error: "Invalid savings category" });
+    // Create a new transaction record for this savings addition.
+    // Here, we use the Savings model so that the transaction is logged in the "transactions" collection.
+    const savingTransaction = await Savings.create({
+      category: "Saving",  // you can also use a different marker like "Goal Savings"
+      amount: data.entryAmount,
+      where: data.where,
+      user: user,
+      date: new Date(data.entryDate),
+      notes: data.notes
+    });
+    return res.status(200).json({ success: true, goal, savingTransaction });
   }
+  
 });
 
 // For debt, update the debt item if it exists, otherwise create a new debt record.

@@ -123,4 +123,57 @@ const getBudget = async (req, res) => {
     }
 };
 
-module.exports = { getBudget };
+const addGoal = asyncWrapper(async (req, res) => {
+    const { title, goalDate, goalAmount } = req.body;
+    if (!title || !goalDate || !goalAmount) {
+      return res.status(400).json({ success: false, message: "Missing goal fields" });
+    }
+    const user = req.user._id;
+    const newGoal = await savingItems.create({
+      category: "Goals",
+      title,
+      goalDate: new Date(goalDate),
+      goalAmount,
+      currentAmount: 0,
+      user,
+      startDate: new Date()
+    });
+    res.status(201).json({ success: true, goal: newGoal });
+  });
+  
+// Update a budgeting goal
+const updateGoal = asyncWrapper(async (req, res) => {
+    const goalId = req.params.id;
+    const { title, goalDate, goalAmount } = req.body;
+    if (!title || !goalDate || !goalAmount) {
+      return res.status(400).json({ success: false, message: "Missing goal fields" });
+    }
+    // Find and update the goal for the authenticated user
+    const updatedGoal = await savingItems.findOneAndUpdate(
+      { _id: goalId, user: req.user._id },
+      {
+        title,
+        goalDate: new Date(goalDate + "T00:00:00"),
+        goalAmount: Number(goalAmount)
+      },
+      { new: true }
+    );
+    if (!updatedGoal) {
+      return res.status(404).json({ success: false, message: "Goal not found" });
+    }
+    res.status(200).json({ success: true, goal: updatedGoal });
+  });
+  
+  // Delete a budgeting goal
+  const deleteGoal = asyncWrapper(async (req, res) => {
+    const goalId = req.params.id;
+    const deletedGoal = await savingItems.findOneAndDelete({ _id: goalId, user: req.user._id });
+    if (!deletedGoal) {
+      return res.status(404).json({ success: false, message: "Goal not found" });
+    }
+    res.status(200).json({ success: true, message: "Goal removed" });
+  });
+  
+
+
+  module.exports = { getBudget, addGoal, updateGoal, deleteGoal };

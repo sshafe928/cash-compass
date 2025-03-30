@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Added import
 import { FaSearch } from "react-icons/fa";
 import compassLogo from "../assets/images/compassLogo.png";
 import { AiOutlineArrowUp, AiOutlineArrowDown, AiOutlineCreditCard } from "react-icons/ai";
 import { GiPiggyBank } from "react-icons/gi";
 
 const History = () => {
+  const navigate = useNavigate();
+
   // Sidebar and header state
   const [isOpen, setIsOpen] = useState(false);
   // User state (pulled from localStorage)
@@ -13,6 +16,21 @@ const History = () => {
   // Transaction data state (fetched from backend)
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      navigate("/about");
+    } else {
+      setUser(JSON.parse(storedUser));
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    navigate("/about");
+  };
 
   // Filter states
   const [dateRange, setDateRange] = useState("1_week"); // "1_week", "1_month", "6_months", "12_months"
@@ -244,7 +262,7 @@ const History = () => {
                 </a>
               </li>
               <li>
-                <button onClick={() => {}} className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">
+                <button onClick={handleLogout} className="w-full text-left block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">
                   Logout
                 </button>
               </li>

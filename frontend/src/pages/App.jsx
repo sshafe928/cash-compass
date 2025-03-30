@@ -161,94 +161,166 @@ const Dashboard = () => {
       });
   }, []);
 
-  // Recompute custom chart data when timeFilter or chart data changes
   useEffect(() => {
-    if (timeFilter === "12_months") {
-      const labels = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-      ];
-      setCustomChartData({
-        labels,
-        datasets: [
-          {
-            label: "Income",
-            data: chartIncome,
-            backgroundColor: "rgba(54, 162, 235, 0.6)"
-          },
-          {
-            label: "Expenses",
-            data: chartExpense,
-            backgroundColor: "rgba(255, 99, 132, 0.6)"
+    if (selectedOption === "debt") {
+      // Build debt chart data based on the selected time filter
+      if (timeFilter === "12_months") {
+        const labels = [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
+        ];
+        setCustomChartData({
+          labels,
+          datasets: [
+            {
+              label: "Debt",
+              data: chartDebt,
+              backgroundColor: "rgba(0, 0, 0, 0.6)"
+            }
+          ]
+        });
+      } else if (timeFilter === "6_months") {
+        let earliestMonth = 13;
+        // Use chartDebt data for six months
+        const allLabels = [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
+        ];
+        // Find the earliest month that has a debt value (if any)
+        chartDebt.forEach((val, index) => {
+          if (val > 0 && index + 1 < earliestMonth) {
+            earliestMonth = index + 1;
           }
-        ]
-      });
-    } else if (timeFilter === "6_months") {
-      let earliestMonth = 13;
-      const allData = [...incomes, ...expenses];
-      allData.forEach(item => {
-        const m = new Date(item.date).getMonth() + 1;
-        if (m < earliestMonth) earliestMonth = m;
-      });
-      if (earliestMonth === 13) earliestMonth = 1;
-      const allLabels = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-      ];
-      const labels = allLabels.slice(earliestMonth - 1, earliestMonth - 1 + 6);
-      const slicedIncome = chartIncome.slice(earliestMonth - 1, earliestMonth - 1 + 6);
-      const slicedExpense = chartExpense.slice(earliestMonth - 1, earliestMonth - 1 + 6);
-      setCustomChartData({
-        labels,
-        datasets: [
-          {
-            label: "Income",
-            data: slicedIncome,
-            backgroundColor: "rgba(54, 162, 235, 0.6)"
-          },
-          {
-            label: "Expenses",
-            data: slicedExpense,
-            backgroundColor: "rgba(255, 99, 132, 0.6)"
+        });
+        if (earliestMonth === 13) earliestMonth = 1;
+        const labels = allLabels.slice(earliestMonth - 1, earliestMonth - 1 + 6);
+        const slicedDebt = chartDebt.slice(earliestMonth - 1, earliestMonth - 1 + 6);
+        setCustomChartData({
+          labels,
+          datasets: [
+            {
+              label: "Debt",
+              data: slicedDebt,
+              backgroundColor: "rgba(0, 0, 0, 0.6)"
+            }
+          ]
+        });
+      } else if (timeFilter === "1_month") {
+        // For one month, you might decide how to display debt data.
+        // For example, showing daily totals for the current month:
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth() + 1;
+        const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+        const dailyDebt = Array(daysInMonth).fill(0);
+        transactions.forEach(t => {
+          const [year, month, day] = t.date.split("-").map(Number);
+          if (year === currentYear && month === currentMonth && t.type.toLowerCase() === "debt") {
+            dailyDebt[day - 1] += parseFloat(t.amount.toString().replace(/[$,]/g, ""));
           }
-        ]
-      });
-    } else if (timeFilter === "1_month") {
-      const currentDate = new Date();
-      const currentYear = currentDate.getFullYear();
-      const currentMonth = currentDate.getMonth() + 1;
-      const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-      const dailyIncome = Array(daysInMonth).fill(0);
-      const dailyExpense = Array(daysInMonth).fill(0);
-      transactions.forEach(t => {
-        const [year, month, day] = t.date.split("-").map(Number);
-        if (year === currentYear && month === currentMonth) {
-          const amt = parseFloat(t.amount.replace(/[$,]/g, ""));
-          if (t.type === "income") {
-            dailyIncome[day - 1] += amt;
-          } else {
-            dailyExpense[day - 1] += amt;
+        });
+        const labels = Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
+        setCustomChartData({
+          labels,
+          datasets: [
+            {
+              label: "Debt",
+              data: dailyDebt,
+              backgroundColor: "rgba(0, 0, 0, 0.6)"
+            }
+          ]
+        });
+      }
+    } else {
+      // Original logic for Expense & Income
+      if (timeFilter === "12_months") {
+        const labels = [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
+        ];
+        setCustomChartData({
+          labels,
+          datasets: [
+            {
+              label: "Income",
+              data: chartIncome,
+              backgroundColor: "rgba(54, 162, 235, 0.6)"
+            },
+            {
+              label: "Expenses",
+              data: chartExpense,
+              backgroundColor: "rgba(255, 99, 132, 0.6)"
+            }
+          ]
+        });
+      } else if (timeFilter === "6_months") {
+        let earliestMonth = 13;
+        const allData = [...incomes, ...expenses];
+        allData.forEach(item => {
+          const m = new Date(item.date).getMonth() + 1;
+          if (m < earliestMonth) earliestMonth = m;
+        });
+        if (earliestMonth === 13) earliestMonth = 1;
+        const allLabels = [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
+        ];
+        const labels = allLabels.slice(earliestMonth - 1, earliestMonth - 1 + 6);
+        const slicedIncome = chartIncome.slice(earliestMonth - 1, earliestMonth - 1 + 6);
+        const slicedExpense = chartExpense.slice(earliestMonth - 1, earliestMonth - 1 + 6);
+        setCustomChartData({
+          labels,
+          datasets: [
+            {
+              label: "Income",
+              data: slicedIncome,
+              backgroundColor: "rgba(54, 162, 235, 0.6)"
+            },
+            {
+              label: "Expenses",
+              data: slicedExpense,
+              backgroundColor: "rgba(255, 99, 132, 0.6)"
+            }
+          ]
+        });
+      } else if (timeFilter === "1_month") {
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth() + 1;
+        const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+        const dailyIncome = Array(daysInMonth).fill(0);
+        const dailyExpense = Array(daysInMonth).fill(0);
+        transactions.forEach(t => {
+          const [year, month, day] = t.date.split("-").map(Number);
+          if (year === currentYear && month === currentMonth) {
+            const amt = parseFloat(t.amount.toString().replace(/[$,]/g, ""));
+            if (t.type.toLowerCase() === "income") {
+              dailyIncome[day - 1] += amt;
+            } else {
+              dailyExpense[day - 1] += amt;
+            }
           }
-        }
-      });
-      const labels = Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
-      setCustomChartData({
-        labels,
-        datasets: [
-          {
-            label: "Income",
-            data: dailyIncome,
-            backgroundColor: "rgba(54, 162, 235, 0.6)"
-          },
-          {
-            label: "Expenses",
-            data: dailyExpense,
-            backgroundColor: "rgba(255, 99, 132, 0.6)"
-          }
-        ]
-      });
+        });
+        const labels = Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
+        setCustomChartData({
+          labels,
+          datasets: [
+            {
+              label: "Income",
+              data: dailyIncome,
+              backgroundColor: "rgba(54, 162, 235, 0.6)"
+            },
+            {
+              label: "Expenses",
+              data: dailyExpense,
+              backgroundColor: "rgba(255, 99, 132, 0.6)"
+            }
+          ]
+        });
+      }
     }
-  }, [timeFilter, incomes, expenses, chartIncome, chartExpense, transactions]);
+  }, [timeFilter, incomes, expenses, chartIncome, chartExpense, chartDebt, transactions, selectedOption]);
+  
 
   const finalChartData = customChartData || chartDataActive;
 
@@ -437,16 +509,25 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-              {/* Time Filter Select */}
-              <select 
-                value={timeFilter}
-                onChange={(e) => setTimeFilter(e.target.value)}
-                className="mb-4 p-2 border rounded float-right"
-              >
-                <option value="1_month">1 Month</option>
-                <option value="6_months">6 Months</option>
-                <option value="12_months">12 Months</option>
-              </select>
+              <div className="flex justify-between items-center mb-4">
+                <select
+                  value={selectedOption}
+                  onChange={(e) => setSelectedOption(e.target.value)}
+                  className="p-2 border rounded"
+                >
+                  <option value="expenseIncome">Expense & Income</option>
+                  <option value="debt">Debt</option>
+                </select>
+                <select
+                  value={timeFilter}
+                  onChange={(e) => setTimeFilter(e.target.value)}
+                  className="p-2 border rounded"
+                >
+                  <option value="1_month">1 Month</option>
+                  <option value="6_months">6 Months</option>
+                  <option value="12_months">12 Months</option>
+                </select>
+              </div>
               <Bar data={finalChartData} options={chartOptions} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

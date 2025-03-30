@@ -1,18 +1,31 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Added import
 import { IoReturnDownBack } from "react-icons/io5";
 import compassLogo from "../assets/images/compassLogo.png";
 import { FaHome, FaCar, FaHeartbeat, FaGraduationCap, FaCreditCard, FaUser, FaBriefcase, FaFileInvoiceDollar } from "react-icons/fa";
 import axios from "axios";
 
 const Forms = () => {
-  // For display purposes only
+  const navigate = useNavigate();
+
+  // Added user state
   const [user, setUser] = useState(null);
+
+  // For display purposes only
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+    if (!storedUser) {
+      navigate("/about");
+    } else {
       setUser(JSON.parse(storedUser));
     }
-  }, []);
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    navigate("/about");
+  };
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
@@ -32,6 +45,21 @@ const Forms = () => {
   // Separate state for savings form category selection
   const [savingsCategory, setSavingsCategory] = useState("");
   const [transaction, setTransaction] = useState(""); // "In" or "Out" for savings
+
+  // Define a default list of debt categories
+  const defaultDebtCategories = [
+    "General Debt",
+    "Government",
+    "Living",
+    "Transportation",
+    "Healthcare",
+    "Groceries",
+    "Restaurant",
+    "Entertainment",
+    "Education",
+    "Gifts",
+    "Other"
+  ];
 
   function handleOption(variable) {
     if (variable) {
@@ -91,12 +119,12 @@ const Forms = () => {
     console.log("Submitting income payload:", { type: "income", data: dataObj });
     
     axios
-    .post("http://localhost:5000/api/forms", { type: "income", data: dataObj }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`
-      }
-    })
-    .then((response) => {
+      .post("http://localhost:5000/api/forms", { type: "income", data: dataObj }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      })
+      .then((response) => {
         setSubmitMessage("Income submitted successfully!");
         if (response.data.updatedUserMoney) {
           const updatedUser = { ...user, userMoney: response.data.updatedUserMoney };
@@ -105,10 +133,10 @@ const Forms = () => {
         }
         console.log("Income submitted successfully:", response.data);
       })      
-    .catch((error) => {
-      setSubmitMessage("Error submitting income: " + error.message);
-      console.error("There was an error submitting the income:", error);
-    });  
+      .catch((error) => {
+        setSubmitMessage("Error submitting income: " + error.message);
+        console.error("There was an error submitting the income:", error);
+      });  
   };
 
   const handleExpenseSubmit = (e) => {
@@ -144,7 +172,6 @@ const Forms = () => {
       });
   };
   
-
   const handleSavingsSubmit = (e) => {
     e.preventDefault();
     const entryDate = date;
@@ -191,7 +218,6 @@ const Forms = () => {
       });
   };
   
-
   const handleDebtSubmit = (e) => {
     e.preventDefault();
     const form = e.target;
@@ -259,7 +285,9 @@ const Forms = () => {
               <a href="/" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">Profile</a>
             </li>
             <li>
-              <a href="/" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">Logout</a>
+            <button onClick={handleLogout} className="w-full text-left block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">
+                Logout
+              </button>
             </li>
           </ul>
         </div>
@@ -431,116 +459,94 @@ const Forms = () => {
         )}
         {/* Debt Form */}
         {selectedOption === "debt" && formActive && (
-        <form
-            className="rounded-2xl bg-white max-w-[800px] min-h-[600px] border border-[#284b74] mx-auto p-4 mt-8"
-            onSubmit={handleDebtSubmit}
-        >
-            <button
-            className="text-gray flex items-center hover:text-dark-blue"
-            onClick={() => setFormActive(false)}
-            >
-            <IoReturnDownBack className="w-6 h-6" />
+          <form className="rounded-2xl bg-white max-w-[800px] min-h-[600px] border border-[#284b74] mx-auto p-4 mt-8" onSubmit={handleDebtSubmit}>
+            <button className="text-gray flex items-center hover:text-dark-blue" onClick={() => setFormActive(false)}>
+              <IoReturnDownBack className="w-6 h-6" />
             </button>
             <div className="text-center flex flex-col w-5/6 mx-auto mb-4">
-            <h1 className="text-dark-blue text-xl md:text-3xl mt-6">Debt</h1>
-            {/* Debt Category Dropdown */}
-            <div className="flex flex-col mt-2">
-                <label
-                className="text-left text-md text-gray-700 font-medium"
-                htmlFor="debt-type"
-                >
-                Debt Category
+              <h1 className="text-dark-blue text-xl md:text-3xl mt-6">Debt</h1>
+              {/* Debt Category Dropdown using defaultDebtCategories */}
+              <div className="flex flex-col mt-2">
+                <label className="text-left text-md text-gray-700 font-medium" htmlFor="debt-type">
+                  Debt Category
                 </label>
                 <select
-                name="debt-type"
-                id="debt-type"
-                className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]"
-                required
+                  name="debt-type"
+                  id="debt-type"
+                  className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]"
+                  required
                 >
-                {debtItems.length > 0 ? (
-                    debtItems.map((item) => (
-                    <option key={item.title} value={item.title}>
-                        {item.title} - ${item.currentAmount}
-                    </option>
-                    ))
-                ) : (
-                    <option value="General Debt">General Debt</option>
-                )}
+                  {defaultDebtCategories.map((cat) => {
+                    // Check if a debt record exists for this category
+                    const debtRecord = debtItems.find((item) => item.title === cat);
+                    return (
+                      <option key={cat} value={cat}>
+                        {cat}{debtRecord ? ` - $${debtRecord.currentAmount}` : ""}
+                      </option>
+                    );
+                  })}
                 </select>
-            </div>
-            {/* Debt Action Dropdown */}
-            <div className="flex flex-col mt-6">
-                <label
-                className="text-left text-md text-gray-700 font-medium"
-                htmlFor="debt-action"
-                >
-                Debt Action
+              </div>
+              {/* Debt Action Dropdown */}
+              <div className="flex flex-col mt-6">
+                <label className="text-left text-md text-gray-700 font-medium" htmlFor="debt-action">
+                  Debt Action
                 </label>
                 <select
-                name="debt-action"
-                id="debt-action"
-                className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]"
-                required
+                  name="debt-action"
+                  id="debt-action"
+                  className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]"
+                  required
                 >
-                <option value="Adding">Adding to Debt</option>
-                <option value="Paying">Paying off Debt</option>
+                  <option value="Adding">Adding to Debt</option>
+                  <option value="Paying">Paying off Debt</option>
                 </select>
-            </div>
-            <div className="flex justify-between w-full mx-auto mt-6">
+              </div>
+              <div className="flex justify-between w-full mx-auto mt-6">
                 <div className="flex flex-col w-3/6 mr-2">
-                <label
-                    className="text-left text-md text-gray-700 font-medium"
-                    htmlFor="debt-date"
-                >
+                  <label className="text-left text-md text-gray-700 font-medium" htmlFor="debt-date">
                     Date
-                </label>
-                <input
+                  </label>
+                  <input
                     name="debt-date"
                     id="debt-date"
                     className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]"
                     type="date"
                     required
-                />
+                  />
                 </div>
                 <div className="flex flex-col w-3/6 ml-2">
-                <label
-                    className="text-left text-md text-gray-700 font-medium"
-                    htmlFor="debt-amount"
-                >
+                  <label className="text-left text-md text-gray-700 font-medium" htmlFor="debt-amount">
                     Amount
-                </label>
-                <input
+                  </label>
+                  <input
                     name="debt-amount"
                     id="debt-amount"
                     className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]"
                     type="number"
                     placeholder="$"
                     required
-                />
+                  />
                 </div>
-            </div>
-            <div className="flex flex-col mt-6">
-                <label
-                className="text-left text-md text-gray-700 font-medium"
-                htmlFor="description"
-                >
-                Description
+              </div>
+              <div className="flex flex-col mt-6">
+                <label className="text-left text-md text-gray-700 font-medium" htmlFor="description">
+                  Description
                 </label>
                 <textarea
-                className="p-2 border border-gray-300 rounded-md text-gray-900 w-full h-[150px] resize-none focus:outline-none focus:ring-1 focus:ring-[#284b74]"
-                name="description"
-                id="description"
-                placeholder="Description..."
-                required
+                  className="p-2 border border-gray-300 rounded-md text-gray-900 w-full h-[150px] resize-none focus:outline-none focus:ring-1 focus:ring-[#284b74]"
+                  name="description"
+                  id="description"
+                  placeholder="Description..."
+                  required
                 ></textarea>
-            </div>
-            <button className="my-6 p-2 rounded-md text-white w-full bg-dark-blue mx-auto hover:bg-hl-blue hover:text-dark-blue">
+              </div>
+              <button className="my-6 p-2 rounded-md text-white w-full bg-dark-blue mx-auto hover:bg-hl-blue hover:text-dark-blue">
                 Submit Transaction
-            </button>
+              </button>
             </div>
-        </form>
+          </form>
         )}
-
       </div>
     </div>
   );
