@@ -257,11 +257,6 @@ const History = () => {
           <div className="mb-4">
             <ul>
               <li>
-                <a href="/" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">
-                  Profile
-                </a>
-              </li>
-              <li>
                 <button onClick={handleLogout} className="w-full text-left block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">
                   Logout
                 </button>
@@ -359,9 +354,9 @@ const History = () => {
                   <option value="100_299">100 - 299</option>
                   <option value="300_599">300 - 599</option>
                   <option value="600_999">600 - 999</option>
-                  <option value="1000_1999">1000 - 2499</option>
-                  <option value="2000_2999">2500 - 4999</option>
-                  <option value="3000_3999">5000+</option>
+                  <option value="1000_2499">1000 - 2499</option>
+                  <option value="2499_4999">2500 - 4999</option>
+                  <option value="5000_50000000000">5000+</option>
                 </select>
               </div>
               <div className="flex overflow-hidden shadow-md">

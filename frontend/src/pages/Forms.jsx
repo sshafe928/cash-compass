@@ -282,7 +282,6 @@ const Forms = () => {
         <div className="mb-4">
           <ul>
             <li>
-              <a href="/" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">Profile</a>
             </li>
             <li>
             <button onClick={handleLogout} className="w-full text-left block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">

@@ -335,7 +335,6 @@ const Budget = () => {
         <div className="flex-grow" />
         <div className="mb-4">
           <ul>
-            <li><a href="/" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">Profile</a></li>
             <li>
               <button onClick={handleLogout} className="w-full text-left block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">
                 Logout
@@ -345,7 +344,7 @@ const Budget = () => {
         </div>
       </div>
       {/* Main Content */}
-        {/* budgeting section */}
+        {/* budgeting section
         <div className="w-full max-w-7xl mx-auto px-4">
           <h1 className="text-gray-500 text-xl my-4">Budgeting Goals</h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -385,9 +384,9 @@ const Budget = () => {
               );
             })}
           </div>
-        </div>
+        </div> */}
         
-        {/* ADJUSTING BUDGET FORM */}
+        {/* ADJUSTING BUDGET FORM
         {budgetFormActive && selectedBudgetCategory && (
         <>
           <div className="fixed inset-0 bg-black bg-opacity-60 z-40"></div>
@@ -411,7 +410,7 @@ const Budget = () => {
             </div>
           </form>
         </>
-        )}
+        )} */}
       <div className="flex-1 p-4 w-4/5 transition-all duration-300 ease-in-out min-h-[100vh]">
         <div className="flex justify-between px-4 pt-4 border-b border-[#284b74] pb-5">
           <div className="flex items-center">
@@ -426,7 +425,7 @@ const Budget = () => {
         {/* Budgeting Goals Section */}
         <div className="w-full max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-gray-500 text-xl my-4">Budgeting Goals</h1>
+            <h1 className="text-gray-500 text-xl my-4">Saving Goals</h1>
             <button 
               onClick={() => setFormActive(true)} 
               className="flex items-center border-2 gap-1 border-dark-blue text-dark-blue rounded-lg w-[100px] h-[40px] justify-center hover:border-blue-300 hover:text-blue-300"
