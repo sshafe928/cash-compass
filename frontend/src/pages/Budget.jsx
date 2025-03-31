@@ -344,6 +344,73 @@ const Budget = () => {
         </div>
       </div>
       {/* Main Content */}
+        {/* budgeting section */}
+        <div className="w-full max-w-7xl mx-auto px-4">
+          <h1 className="text-gray-500 text-xl my-4">Budgeting Goals</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {budgetItems.map((item, index) => {
+              const spentPercentage = (item.spent / item.amount) * 100;
+              return(
+                <div key={index} className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0">
+                        {iconMap[item.icon] ? React.createElement(iconMap[item.icon], { className: `w-8 h-8 ${item.color}` }) : null}
+                      </div>
+                      <div className="flex flex-col min-w-0 max-w-[150px] lg:max-w-[110px] xl:max-w-[150px]">
+                        <h2 className="text-gray-500 text-sm sm:text-base truncate">{item.title}</h2>
+                        <p className="font-bold text-base sm:text-lg">${new Intl.NumberFormat('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(item.amount)}</p>
+                      </div>
+                    </div>
+                    <button onClick={() => (setBudgetFormActive(true), setSelectedBudgetCategory(item))} className="flex-shrink-0 flex items-center gap-2 border-2 border-dark-blue rounded-lg p-2 text-dark-blue hover:text-blue-300 hover:border-blue-300 text-sm sm:text-base transition-colors duration-200">
+                      <span className="hidden custom-large:inline">Adjust</span>
+                      <FiEdit3 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-gray-500 text-sm">Spent: 
+                      <span className="font-bold text-gray-700"> ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(item.spent)}</span>
+                    </p>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                      <div className={`h-2 rounded-full transition-all duration-300 ${spentPercentage < 100 ? "bg-blue-500" : "bg-red-500"}`}
+                        style={{ width: `${Math.min(spentPercentage, 100)}%` }}
+                      ></div>
+                    </div>
+                    <p className={`text-sm font-semibold mt-1 ${spentPercentage >= 100 ? "text-red-500" : "text-gray-600"}`}>
+                      {spentPercentage.toFixed(1)}% of budget used
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        
+        {/* ADJUSTING BUDGET FORM */}
+        {budgetFormActive && selectedBudgetCategory && (
+        <>
+          <div className="fixed inset-0 bg-black bg-opacity-60 z-40"></div>
+          <form className="fixed z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[800px] rounded-2xl bg-white border border-[#284b74] p-4 mt-8">
+            <button className="text-gray flex items-center hover:text-dark-blue" onClick={(e) => { e.preventDefault(); setBudgetFormActive(false); }}>
+              <IoReturnDownBack className="w-6 h-6" />
+            </button>
+            <div className="text-center flex flex-col w-5/6 mx-auto mb-4">
+              <h1 className="text-dark-blue text-xl md:text-3xl mt-6">Adjust Monthly {selectedBudgetCategory.title} Budget</h1>
+              <div className="flex flex-col mt-4">
+                <label className="text-left text-md text-gray-700 font-medium">New Budget Amount:</label>
+                <input type="text" className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" placeholder={selectedBudgetCategory.amount} />
+              </div>
+              <div className="flex flex-col mt-4 space-y-4 text-start">
+                <h1 className="font-semibold text-dark-blue">Currently spent ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(selectedBudgetCategory.spent)} of your ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(selectedBudgetCategory.amount)} monthly budget.</h1>
+                <h1 className="font-semibold text-dark-blue">Current Date: {new Date().toLocaleDateString('en-US')}</h1>
+              </div>
+              <button className="my-10 p-2 rounded-md text-white w-full bg-dark-blue mx-auto hover:bg-hl-blue hover:text-dark-blue">
+                Submit New Budget
+              </button>
+            </div>
+          </form>
+        </>
+        )}
       <div className="flex-1 p-4 w-4/5 transition-all duration-300 ease-in-out min-h-[100vh]">
         <div className="flex justify-between px-4 pt-4 border-b border-[#284b74] pb-5">
           <div className="flex items-center">
