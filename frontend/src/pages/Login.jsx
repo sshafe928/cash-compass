@@ -24,11 +24,13 @@ const Login = () => {
         // Redirect to the Dashboard (App.jsx)
         navigate('/');
       } else {
-        // Handle errors here (display a message, etc.)
-        console.error(data.message || 'Login failed');
+        // Show alert on login failure
+        alert(data.message || 'Invalid email or password');
       }
     } catch (err) {
       console.error('Error during login:', err);
+      // Show alert in case of network error or other issues
+      alert('Invalid email or password');
     }
   };
 

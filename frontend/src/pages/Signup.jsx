@@ -6,13 +6,18 @@ import background from "../assets/images/img1.jfif";
 const Signup = () => {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
-  const [email, setEmail]       = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [balance, setBalance]   = useState("");
-  const [error, setError]       = useState(null);
+  const [balance, setBalance] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if all fields are filled
+    if (!fullName || !email || !password || !balance) {
+      alert("All fields are required.");
+      return;
+    }
 
     try {
       const response = await fetch("http://localhost:5000/api/signup/register", {
@@ -28,11 +33,13 @@ const Signup = () => {
         localStorage.setItem("token", data.token);
         navigate("/");
       } else {
-        setError(data.message || "Signup failed");
+        // Show alert if signup failed
+        alert(data.message || "Signup failed. Please try again.");
       }
     } catch (err) {
       console.error("Error during signup:", err);
-      setError("An error occurred during signup");
+      // Show alert in case of a network error
+      alert("An error occurred during signup. Please try again.");
     }
   };
 
@@ -104,8 +111,6 @@ const Signup = () => {
               value={balance}
               onChange={(e) => setBalance(e.target.value)}
             />
-
-            {error && <p className="text-red-500 mb-4">{error}</p>}
 
             <button
               type="submit"
