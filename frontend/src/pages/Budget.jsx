@@ -75,6 +75,7 @@ const Budget = () => {
   const [formActive, setFormActive] = useState(false);
   const [goalFormActive, setGoalFormActive] = useState(false);
   const [selectedGoalCategory, setSelectedGoalCategory] = useState(null);
+  const [budgetFormActive, setBudgetFormActive] = useState(false);
 
   // State for new goal
   const [newGoalTitle, setNewGoalTitle] = useState("");
