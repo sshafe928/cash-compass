@@ -46,19 +46,16 @@ const Forms = () => {
   const [savingsCategory, setSavingsCategory] = useState("");
   const [transaction, setTransaction] = useState(""); // "In" or "Out" for savings
 
-  // Define a default list of debt categories
+  // Updated default list of debt categories (new ones only)
   const defaultDebtCategories = [
-    "General Debt",
-    "Government",
-    "Living",
-    "Transportation",
-    "Healthcare",
-    "Groceries",
-    "Restaurant",
-    "Entertainment",
-    "Education",
-    "Gifts",
-    "Other"
+    "Student Loans",
+    "Credit Card Debt",
+    "Mortgage",
+    "Personal",
+    "Auto Loans",
+    "Medical Debt",
+    "Business Loans",
+    "Tax Debt"
   ];
 
   function handleOption(variable) {
@@ -66,16 +63,21 @@ const Forms = () => {
       setSelectedOption(variable);
       setFormActive(true);
       setSubmitMessage(""); // clear any previous messages
-      // Reset form fields (optional)
       setDate("");
       setAmount(0);
       setDescription("");
-      if(variable === "savings") {
+      // Set default category based on form type:
+      if (variable === "savings") {
         setSavingsCategory(""); // clear previous savings category
         setTransaction("");
+      } else if (variable === "expense") {
+        setCategory("Living"); // default expense category for expense form
+      } else if (variable === "income") {
+        setCategory("Employment"); // default income category
       }
     }
   }
+  
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
@@ -165,12 +167,15 @@ const Forms = () => {
           localStorage.setItem("user", JSON.stringify(updatedUser));
         }
         console.log("Expense submitted successfully:", response.data);
+        // Dispatch an event to let Budget.jsx know it should refetch data
+        window.dispatchEvent(new CustomEvent('budgetUpdated'));
       })
       .catch((error) => {
         setSubmitMessage("Error submitting expense: " + error.message);
         console.error("There was an error submitting the expense:", error);
       });
   };
+  
   
   const handleSavingsSubmit = (e) => {
     e.preventDefault();
@@ -221,6 +226,7 @@ const Forms = () => {
   const handleDebtSubmit = (e) => {
     e.preventDefault();
     const form = e.target;
+    // Use the new debt categories from defaultDebtCategories
     const debtCategory = form["debt-type"].value;
     const debtAction = form["debt-action"].value;
     const debtDate = form["debt-date"].value;
@@ -378,7 +384,12 @@ const Forms = () => {
               <h1 className="text-dark-blue text-xl md:text-3xl mt-6">Expense</h1>
               <div className="flex flex-col mt-2">
                 <label className="text-left text-md text-gray-700 font-medium" htmlFor="expense-category">Category</label>
-                <select className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]" onChange={(e) => setCategory(e.target.value)} required>
+                <select
+                  value={category}  // bind value here
+                  className="p-2 border border-gray-300 rounded-md text-gray-900 w-full mx-auto focus:outline-none focus:ring-1 focus:ring-[#284b74]"
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                >
                   <option value="Living">Living (Rent/Utilities/Insurance)</option>
                   <option value="Transportation">Transportation</option>
                   <option value="Healthcare">Healthcare</option>
@@ -464,7 +475,7 @@ const Forms = () => {
             </button>
             <div className="text-center flex flex-col w-5/6 mx-auto mb-4">
               <h1 className="text-dark-blue text-xl md:text-3xl mt-6">Debt</h1>
-              {/* Debt Category Dropdown using defaultDebtCategories */}
+              {/* Debt Category Dropdown using updated defaultDebtCategories */}
               <div className="flex flex-col mt-2">
                 <label className="text-left text-md text-gray-700 font-medium" htmlFor="debt-type">
                   Debt Category
