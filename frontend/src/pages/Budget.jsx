@@ -25,6 +25,79 @@ import {
 import Speedometer from "../components/Speedometer";
 import { TbTargetArrow } from "react-icons/tb";
 
+// Full list of debt categories (unchanged)
+const fullDebtCategories = [
+  {
+    title: "Student Loans",
+    icon: FaGraduationCap,
+    description:
+      "Includes federal and private student loans for tuition, books, housing, and other educational expenses.",
+    color: "text-blue-500",
+  },
+  {
+    title: "Credit Card Debt",
+    icon: FaCreditCard,
+    description:
+      "Debt from revolving credit cards, including unpaid balances, interest charges, and late fees.",
+    color: "text-red-500",
+  },
+  {
+    title: "Mortgage",
+    icon: FaHome,
+    description:
+      "Home loan debt, including first and second mortgages, home equity loans, and refinancing balances.",
+    color: "text-green-500",
+  },
+  {
+    title: "Personal",
+    icon: FaUser,
+    description:
+      "Unsecured loans for personal use, such as debt consolidation, vacations, weddings, or emergencies.",
+    color: "text-purple-500",
+  },
+  {
+    title: "Auto Loans",
+    icon: FaCar,
+    description:
+      "Loans for purchasing or leasing a car, truck, or motorcycle, including financing and leasing agreements.",
+    color: "text-yellow-500",
+  },
+  {
+    title: "Medical Debt",
+    icon: FaHeartbeat,
+    description:
+      "Outstanding balances for medical expenses, including hospital bills, surgery, prescriptions, and emergency care.",
+    color: "text-red-500",
+  },
+  {
+    title: "Business Loans",
+    icon: FaBriefcase,
+    description:
+      "Loans taken to fund a business, including startup costs, operational expenses, and equipment purchases.",
+    color: "text-red-900",
+  },
+  {
+    title: "Tax Debt",
+    icon: FaFileInvoiceDollar,
+    description:
+      "Unpaid federal, state, or local taxes, including income tax, property tax, and penalties for late payments.",
+    color: "text-gray-500",
+  },
+];
+
+// Hard-coded budget categories from the mock data (sections only – numbers come from backend)
+const fullBudgetCategories = [
+  { title: "Living", icon: FaHome, color: "text-gray-500", category: "Budget" },
+  { title: "Healthcare", icon: FaHeartbeat, color: "text-red-500", category: "Budget" },
+  { title: "Transportation", icon: FaCar, color: "text-yellow-500", category: "Budget" },
+  { title: "Groceries", icon: FaShoppingBasket, color: "text-green-500", category: "Budget" },
+  { title: "Entertainment", icon: FaFilm, color: "text-purple-500", category: "Budget" },
+  { title: "Gifts", icon: FaGift, color: "text-pink-500", category: "Budget" },
+  { title: "Restaurant & Dining", icon: FaUtensils, color: "text-red-400", category: "Budget" },
+  { title: "Education", icon: FaBook, color: "text-orange-500", category: "Budget" },
+  { title: "Other", icon: FaEllipsisH, color: "text-blue-600", category: "Budget" },
+];
+
 const toLocalISODate = (date) => {
   const tzOff = new Date().getTimezoneOffset() * 60000;
   return new Date(new Date(date) - tzOff).toISOString().split("T")[0];
@@ -43,10 +116,28 @@ const financialResources = [
   { question: "Curious about the 50/30/20 rule for budgeting and how to apply it?", title: "The 50/30/20 Budget Rule Explained", link: "https://www.youtube.com/watch?v=jNUbhmB8zw8" },
 ];
 
+
+
 const Budget = () => {
   const navigate = useNavigate();
 
-  // Added user state for logout and user info
+
+  useEffect(() => {
+    fetchBudgetData();
+  
+    const handleBudgetUpdateEvent = () => {
+      fetchBudgetData();
+    };
+  
+    window.addEventListener('budgetUpdated', handleBudgetUpdateEvent);
+  
+    return () => {
+      window.removeEventListener('budgetUpdated', handleBudgetUpdateEvent);
+    };
+  }, []);
+  
+
+  // User state
   const [user, setUser] = useState(null);
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -56,6 +147,27 @@ const Budget = () => {
       setUser(JSON.parse(storedUser));
     }
   }, [navigate]);
+
+  const fetchBudgetData = () => {
+    fetch('http://localhost:5000/api/budget', {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setSavingItems(data.savingItems);
+          setBudgetItems(data.budgetItems);
+          setDebtItems(data.debtItems);
+        } else {
+          setError('Failed to load data');
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+        setError('Error fetching data');
+      });
+  };
+  
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -77,16 +189,19 @@ const Budget = () => {
   const [selectedGoalCategory, setSelectedGoalCategory] = useState(null);
   const [budgetFormActive, setBudgetFormActive] = useState(false);
   const [selectedBudgetCategory, setSelectedBudgetCategory] = useState(null);
-
-  // State for new goal
+  
+  // State for new goal (for savings)
   const [newGoalTitle, setNewGoalTitle] = useState("");
   const [newGoalDate, setNewGoalDate] = useState("");
   const [newGoalAmount, setNewGoalAmount] = useState("");
 
-  // States for updating goal
+  // State for updating goal (for savings)
   const [updatedGoalTitle, setUpdatedGoalTitle] = useState("");
   const [updatedGoalDate, setUpdatedGoalDate] = useState("");
   const [updatedGoalAmount, setUpdatedGoalAmount] = useState("");
+
+  // NEW: State for adjusting a budget item’s monthly budget (for budget categories)
+  const [newBudgetAmount, setNewBudgetAmount] = useState("");
 
   const [isOpen, setIsOpen] = useState(false);
   const toggleSidebar = () => setIsOpen(!isOpen);
@@ -109,7 +224,7 @@ const Budget = () => {
     "FaFileInvoiceDollar": FaFileInvoiceDollar,
   };
 
-  // Dedicated mapping for debt items based on title
+  // Debt mappings (unchanged)
   const debtIconMap = {
     "General Debt": FaFileInvoiceDollar,
     "Government": FaLandmark,
@@ -124,7 +239,6 @@ const Budget = () => {
     "Other": FaEllipsisH,
   };
 
-  // Dedicated mapping for debt colors
   const debtColorMap = {
     "General Debt": "text-gray-700",
     "Government": "text-blue-600",
@@ -190,10 +304,106 @@ const Budget = () => {
       });
   }, []);
 
-  const totalDebt = debtItems?.reduce((sum, item) => sum + item.currentAmount, 0) || 0;
-  const formattedTotalDebt = totalDebt.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  // Merge the fetched budget items with the full hard-coded budget categories.
+  // For each category, if a record exists in the backend, use its amount and spent; otherwise, leave them as 0.
+  const mergedBudgetData = fullBudgetCategories.map(category => {
+    const existing = budgetItems.find(item => item.title === category.title);
+    return {
+      ...category,
+      amount: existing ? existing.amount : 0,
+      spent: existing ? existing.spent : 0,
+      id: existing ? existing.id : null
+    };
+  });
 
-  // Goal Handlers
+  // Merge debt data (unchanged)
+  const mergedDebtData = fullDebtCategories.map(category => {
+    const existingDebt = debtItems.find(item => item.title === category.title);
+    return {
+      ...category,
+      currentAmount: existingDebt ? existingDebt.currentAmount : 0,
+    };
+  });
+  
+  const totalDebtMerged = mergedDebtData.reduce((sum, item) => sum + item.currentAmount, 0);
+  const formattedTotalDebtMerged = totalDebtMerged.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  // NEW: Handler for submitting budget changes.
+  // If selectedBudgetCategory.id exists, update the record; if not, create a new record.
+  const handleBudgetSubmit = (e) => {
+    e.preventDefault();
+    if (!newBudgetAmount) return;
+    if (selectedBudgetCategory.id) {
+      // Update existing budget record
+      fetch(`http://localhost:5000/api/budget/${selectedBudgetCategory.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({ amount: newBudgetAmount })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setBudgetItems(prev =>
+              prev.map(item =>
+                item.id === selectedBudgetCategory.id ? { ...item, amount: Number(newBudgetAmount) } : item
+              )
+            );
+            setBudgetFormActive(false);
+            setNewBudgetAmount("");
+          } else {
+            setError("Failed to update budget");
+          }
+        })
+        .catch((err) => {
+          console.error("Error updating budget:", err);
+          setError("Error updating budget");
+        });
+    } else {
+      // Create new budget record
+      fetch(`http://localhost:5000/api/budget`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({
+          title: selectedBudgetCategory.title,
+          icon: selectedBudgetCategory.icon, // You may need to convert this to a string if required by your backend.
+          amount: newBudgetAmount,
+          spent: 0,
+          color: selectedBudgetCategory.color,
+          category: "Budget"
+        })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            // Append the new budget record to local state
+            setBudgetItems(prev => [...prev, {
+              id: data.budget._id.toString(),
+              title: data.budget.title,
+              icon: data.budget.icon,
+              amount: data.budget.amount,
+              spent: data.budget.spent,
+              color: data.budget.color
+            }]);
+            setBudgetFormActive(false);
+            setNewBudgetAmount("");
+          } else {
+            setError("Failed to create budget");
+          }
+        })
+        .catch((err) => {
+          console.error("Error creating budget:", err);
+          setError("Error creating budget");
+        });
+    }
+  };
+
+  // Goal Handlers for Savings Goals (unchanged)
   const handleGoalSubmit = (e) => {
     e.preventDefault();
     fetch("http://localhost:5000/api/budget/goals", {
@@ -312,7 +522,7 @@ const Budget = () => {
           console.error("Error removing goal:", err);
           setError("Error removing goal");
         });
-  };
+    }
   };
 
   const totalBudgetAmount = budgetItems.reduce((sum, item) => sum + item.amount, 0);
@@ -324,14 +534,14 @@ const Budget = () => {
       <div className={`lg:w-1/5 w-[300px] fixed bg-dark-blue text-white p-4 h-screen flex flex-col lg:top-0 transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
         <button className="lg:hidden absolute top-4 right-4 text-white text-3xl" onClick={toggleSidebar}>&times;</button>
         <div className="text-center">
-            <img src={compassLogo} alt="Compass Logo" className="mx-auto w-[150px]" />
-            <h2 className="text-2xl mb-4">Cash Compass</h2>
+          <img src={compassLogo} alt="Compass Logo" className="mx-auto w-[150px]" />
+          <h2 className="text-2xl mb-4">Cash Compass</h2>
         </div>
         <ul>
-            <li><a href="/" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">Dashboard</a></li>
-            <li><a href="/forms" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">Forms</a></li>
-            <li><a href="/history" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">History</a></li>
-            <li><a href="/budget" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">Budgeting</a></li>
+          <li><a href="/" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">Dashboard</a></li>
+          <li><a href="/forms" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">Forms</a></li>
+          <li><a href="/history" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">History</a></li>
+          <li><a href="/budget" className="block py-2 px-4 rounded-md hover:bg-hl-blue hover:text-dark-blue">Budgeting</a></li>
         </ul>
         <div className="flex-grow" />
         <div className="mb-4">
@@ -357,85 +567,86 @@ const Budget = () => {
           </div>
         </div>
         {/* main content */}
-        {/* budgeting section */}
+        {/* Budgeting Goals Section */}
         <div className="w-full max-w-7xl mx-auto px-4">
           <h1 className="text-gray-500 text-xl my-4">Budgeting Goals</h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {budgetItems.map((item, index) => {
-                  const spentPercentage = (item.spent / item.amount) * 100;
-                  return(
-                      <div key={index} className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                          <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-4">
-                                  <div className="flex-shrink-0">
-                                      {/* Dynamically render icon */}
-                                      {iconMap[item.icon] ? React.createElement(iconMap[item.icon], { className: `w-8 h-8 ${item.color}` }) : null}
-                                  </div>
-                                  <div className="flex flex-col min-w-0 max-w-[150px] lg:max-w-[110px] xl:max-w-[150px]">
-                                      <h2 className="text-gray-500 text-sm sm:text-base truncate">{item.title}</h2>
-                                      <p className="font-bold text-base sm:text-lg">${new Intl.NumberFormat('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(item.amount)}</p>
-                                  </div>
-                              </div>
-                              <button onClick={() => (setBudgetFormActive(true), setSelectedBudgetCategory(item))} className="flex-shrink-0 flex items-center gap-2 border-2 border-dark-blue rounded-lg p-2 text-dark-blue hover:text-blue-300 hover:border-blue-300 text-sm sm:text-base transition-colors duration-200">
-                                  <span className="hidden custom-large:inline">Adjust</span>
-                                  <FiEdit3 className="w-4 h-4" />
-                              </button>
-                          </div>
-                          {/* Spent Amount & Progress Bar */}
-                          <div className="mt-4">
-                              <p className="text-gray-500 text-sm">Spent: 
-                                  <span className="font-bold text-gray-700"> ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(item.spent)}</span>
-                              </p>
-                              {/* Progress Bar */}
-                              <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                                  <div 
-                                      className={`h-2 rounded-full transition-all duration-300 ${spentPercentage < 100 ? "bg-blue-500" : "bg-red-500"}`}
-                                      style={{ width: `${Math.min(spentPercentage, 100)}%` }}
-                                  ></div>
-                              </div>
-                              {/* Percentage Spent Display */}
-                              <p className={`text-sm font-semibold mt-1 ${spentPercentage >= 100 ? "text-red-500" : "text-gray-600"}`}>
-                                  {spentPercentage.toFixed(1)}% of budget used
-                              </p>
-                          </div>
+            {mergedBudgetData.map((item, index) => {
+              const spentPercentage = item.amount > 0 ? (item.spent / item.amount) * 100 : 0;
+              return (
+                <div key={index} className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0">
+                        {iconMap[item.icon] ? React.createElement(iconMap[item.icon], { className: `w-8 h-8 ${item.color}` }) : React.createElement(item.icon, { className: `w-8 h-8 ${item.color}` })}
                       </div>
-                  );
-              })}
+                      <div className="flex flex-col min-w-0 max-w-[150px] lg:max-w-[110px] xl:max-w-[150px]">
+                        <h2 className="text-gray-500 text-sm sm:text-base truncate">{item.title}</h2>
+                        <p className="font-bold text-base sm:text-lg">
+                          {item.amount ? `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(item.amount)}` : "Set Budget"}
+                        </p>
+                      </div>
+                    </div>
+                    <button onClick={() => { setBudgetFormActive(true); setSelectedBudgetCategory(item); }} className="flex-shrink-0 flex items-center gap-2 border-2 border-dark-blue rounded-lg p-2 text-dark-blue hover:text-blue-300 hover:border-blue-300 text-sm sm:text-base transition-colors duration-200">
+                      <span className="hidden custom-large:inline">Adjust</span>
+                      <FiEdit3 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {/* Spent Amount & Progress Bar */}
+                  <div className="mt-4">
+                    <p className="text-gray-500 text-sm">Spent: 
+                      <span className="font-bold text-gray-700"> {item.spent ? `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(item.spent)}` : "$0.00"}</span>
+                    </p>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-300 ${spentPercentage < 100 ? "bg-blue-500" : "bg-red-500"}`}
+                        style={{ width: `${Math.min(spentPercentage, 100)}%` }}
+                      ></div>
+                    </div>
+                    <p className={`text-sm font-semibold mt-1 ${spentPercentage >= 100 ? "text-red-500" : "text-gray-600"}`}>
+                      {spentPercentage.toFixed(1)}% of budget used
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-      </div>
-      
-      {/* ADJUSTING BUDGET FORM */}
-      {budgetFormActive && selectedBudgetCategory && (
-      <>
-          {/* Dark overlay */}
-          <div className="fixed inset-0 bg-black bg-opacity-60 z-40"></div>
-
-          {/* The form */}
-          <form className="fixed z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[800px] rounded-2xl bg-white border border-[#284b74] p-4 mt-8">
-              <button className="text-gray flex items-center hover:text-dark-blue" onClick={() => setBudgetFormActive(false)}>
-                  <IoReturnDownBack className="w-6 h-6" />
+        </div>
+        
+        {/* ADJUSTING BUDGET FORM */}
+        {budgetFormActive && selectedBudgetCategory && (
+          <>
+            <div className="fixed inset-0 bg-black bg-opacity-60 z-40"></div>
+            <form onSubmit={handleBudgetSubmit} className="fixed z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[800px] rounded-2xl bg-white border border-[#284b74] p-4 mt-8">
+              <button className="text-gray flex items-center hover:text-dark-blue" onClick={(e) => { e.preventDefault(); setBudgetFormActive(false); }}>
+                <IoReturnDownBack className="w-6 h-6" />
               </button>
               <div className="text-center flex flex-col w-5/6 mx-auto mb-4">
-                  <h1 className="text-dark-blue text-xl md:text-3xl mt-6">Adjust Monthly {selectedBudgetCategory.title} Budget</h1>
-
-                  {/* Goal Title */}
-                  <div className="flex flex-col mt-4">
-                      <label className="text-left text-md text-gray-700 font-medium" htmlFor="">New Budget Amount:</label>
-                      <input type="text" className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" placeholder={selectedBudgetCategory.amount} />
-                  </div>
-                  <div className="flex flex-col mt-4 space-y-4 text-start">
-                      <h1 className="font-semibold text-dark-blue">Currently spent ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(selectedBudgetCategory.spent)} of your ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(selectedBudgetCategory.amount)} monthly budget.</h1>
-                      <h1 className="font-semibold text-dark-blue">Current Date: {new Date().toLocaleDateString('en-US')}</h1>
-                  </div>
-
-                  {/* Submit Button */}
-                  <button className="my-10 p-2 rounded-md text-white w-full bg-dark-blue mx-auto hover:bg-hl-blue hover:text-dark-blue">
-                      Submit New Budget
-                  </button>
+                <h1 className="text-dark-blue text-xl md:text-3xl mt-6">Adjust Monthly {selectedBudgetCategory.title} Budget</h1>
+                <div className="flex flex-col mt-4">
+                  <label className="text-left text-md text-gray-700 font-medium">New Budget Amount:</label>
+                  <input 
+                    type="number" 
+                    className="p-2 border border-gray-300 rounded-md text-gray-900 w-full focus:outline-none focus:ring-1 focus:ring-[#284b74]" 
+                    value={newBudgetAmount}
+                    onChange={(e) => setNewBudgetAmount(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="flex flex-col mt-4 space-y-4 text-start">
+                  <h1 className="font-semibold text-dark-blue">
+                    Currently {selectedBudgetCategory.amount ? `set at $${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(selectedBudgetCategory.amount)}` : "not set"} &mdash; Spent {selectedBudgetCategory.spent ? `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(selectedBudgetCategory.spent)}` : "$0.00"}
+                  </h1>
+                  <h1 className="font-semibold text-dark-blue">Current Date: {new Date().toLocaleDateString('en-US')}</h1>
+                </div>
+                <button className="my-10 p-2 rounded-md text-white w-full bg-dark-blue mx-auto hover:bg-hl-blue hover:text-dark-blue">
+                  Submit New Budget
+                </button>
               </div>
-          </form>
-      </>
-      )}
+            </form>
+          </>
+        )}
+        
         {/* Savings Goals Section */}
         <div className="w-full max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center">
@@ -612,27 +823,31 @@ const Budget = () => {
                   <FaMoneyBillWave className="w-12 h-12 text-green-700" />
                   <h1 className="text-xl">Total Debt</h1>
                 </div>
-                <h1 className="font-bold text-base sm:text-2xl text-center my-4">${formattedTotalDebt}</h1>
-                {totalDebt <= 0 ? (
+                <h1 className="font-bold text-base sm:text-2xl text-center my-4">
+                  ${formattedTotalDebtMerged}
+                </h1>
+                {totalDebtMerged <= 0 ? (
                   <h1 className="text-2xl text-center">Congratulations you are free of debt!</h1>
                 ) : (
                   <h1 className="text-2xl text-center">One step closer to being free of debt!</h1>
                 )}
               </div>
             </div>
-            {debtItems.map((item, index) => {
-              const IconComponent = debtIconMap[item.title] || FaFileInvoiceDollar;
-              const colorClass = debtColorMap[item.title] || "text-blue-600";
+            {mergedDebtData.map((item, index) => {
+              const IconComponent = item.icon;
               return (
                 <div key={index} className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
                   <div className="flex justify-center items-center gap-4">
                     <div className="flex-shrink-0">
-                      <IconComponent className={`w-8 h-8 ${colorClass}`} />
+                      <IconComponent className={`w-8 h-8 ${item.color}`} />
                     </div>
                     <h1 className="text-xl">{item.title}</h1>
                   </div>
                   <p className="font-bold text-base sm:text-2xl text-center my-4">
-                    ${new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(item.currentAmount)}
+                    ${new Intl.NumberFormat("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(item.currentAmount)}
                   </p>
                   <p className="text-md text-center">{item.description}</p>
                 </div>
