@@ -529,7 +529,7 @@ const Dashboard = () => {
               {/* Spending Overview Section */}
               <div className="bg-white p-4 rounded-lg shadow-md h-[222px]">
                 <div className="flex justify-between items-center mb-4">
-                  <h1 className="text-dark-blue text-xl">Spending Overview</h1>
+                  <h1 className="text-dark-blue text-xl">Monthly Spending Overview</h1>
                   <div className="flex gap-2">
                     <button onClick={prevExpensePage} className="p-1 rounded-full hover:bg-gray-100" disabled={expensePageCount <= 1}>
                       <ChevronLeft className="w-5 h-5 text-gray-600" />
@@ -556,7 +556,7 @@ const Dashboard = () => {
               {/* Earnings Overview Section */}
               <div className="bg-white p-4 rounded-lg shadow-md h-[222px]">
                 <div className="flex justify-between items-center mb-4">
-                  <h1 className="text-dark-blue text-xl">Earnings Overview</h1>
+                  <h1 className="text-dark-blue text-xl">Monthly Earnings Overview</h1>
                   <div className="flex gap-2">
                     <button onClick={prevIncomePage} className="p-1 rounded-full hover:bg-gray-100" disabled={incomePageCount <= 1}>
                       <ChevronLeft className="w-5 h-5 text-gray-600" />
